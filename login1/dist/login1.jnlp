@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="1.0" xmlns:jfx="http://javafx.com" href="login1.jnlp">
+  <information>
+    <title>login1</title>
+    <vendor>prate</vendor>
+    <description>null</description>
+    <offline-allowed/>
+  </information>
+  <resources>
+    <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
+    <jar href="lib\commons-cli-1.2.jar" size="41123" download="eager" />
+    <jar href="lib\commons-codec-1.9.jar" size="263965" download="eager" />
+    <jar href="lib\commons-logging-1.2.jar" size="61829" download="eager" />
+    <jar href="lib\fluent-hc-4.5.3.jar" size="31148" download="eager" />
+    <jar href="lib\httpasyncclient-4.1.3.jar" size="179335" download="eager" />
+    <jar href="lib\httpasyncclient-cache-4.1.3.jar" size="35005" download="eager" />
+    <jar href="lib\httpclient-4.5.3.jar" size="747794" download="eager" />
+    <jar href="lib\httpclient-cache-4.5.3.jar" size="159642" download="eager" />
+    <jar href="lib\httpclient-win-4.5.3.jar" size="17489" download="eager" />
+    <jar href="lib\httpcore-4.4.6.jar" size="323824" download="eager" />
+    <jar href="lib\httpcore-ab-4.4.6.jar" size="31378" download="eager" />
+    <jar href="lib\httpcore-nio-4.4.6.jar" size="356644" download="eager" />
+    <jar href="lib\httpcore5-5.0-alpha2.jar" size="591083" download="eager" />
+    <jar href="lib\httpcore5-ab-5.0-alpha2.jar" size="33174" download="eager" />
+    <jar href="lib\httpcore5-h2-5.0-alpha2.jar" size="180402" download="eager" />
+    <jar href="lib\httpcore5-testing-5.0-alpha2.jar" size="87692" download="eager" />
+    <jar href="lib\httpmime-4.5.3.jar" size="41029" download="eager" />
+    <jar href="lib\jna-4.1.0.jar" size="914597" download="eager" />
+    <jar href="lib\jna-platform-4.1.0.jar" size="1464423" download="eager" />
+    <jar href="lib\log4j-api-2.7.jar" size="219001" download="eager" />
+    <jar href="lib\log4j-core-2.7.jar" size="1296865" download="eager" />
+    <jar href="lib\mysql-connector-java-5.1.23-bin.jar" size="834126" download="eager" />
+    <jar href="lib\org.eclipse.fx.core_2.4.0.201605111715.jar" size="187751" download="eager" />
+    <jar href="lib\org.eclipse.fx.ui.animation_2.4.0.201605111715.jar" size="31401" download="eager" />
+    <jar href="lib\org.eclipse.fx.ui.controls_2.4.0.201605111715.jar" size="690611" download="eager" />
+    <jar href="lib\org.eclipse.fx.ui.panes_2.4.0.201605111715.jar" size="67507" download="eager" />
+    <jar href="login1.jar" size="15668" download="eager" />
+  </resources>
+  <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="login1" >
+    <param name="requiredFXVersion" value="8.0+"/>
+  </applet-desc>
+  <jfx:javafx-desc  width="800" height="600" main-class="Client.Client"  name="login1" />
+  <update check="always"/>
+</jnlp>

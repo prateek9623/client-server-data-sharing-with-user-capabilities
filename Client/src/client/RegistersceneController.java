@@ -210,9 +210,7 @@ public class RegistersceneController implements Initializable {
                 stage.setScene(scene);
                 LoginsceneController controller = loader.getController();
                 controller.set_status("Registration Successful");
-                        
                 stage.show();
-                
             } else {
                 main_alert.setText("Registration failed");
             }

@@ -40,26 +40,4 @@ public class login extends HttpServlet {
         System.out.println(sessionid);
         response.getOutputStream().println(sessionid);    
     }
-    private String sidGenerator(){
-        SecureRandom random = new SecureRandom();
-        String random_string = new BigInteger(130,random).toString(32);
-        return random_string;
-    }
-//    @Override
-//    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-//            throws ServletException, IOException {
-//        dbconnect db = new dbconnect();
-//        String sessionid;
-//        String user = request.getParameter("username");
-//        String pass = request.getParameter("password");
-//        System.out.println("user:"+user+"pass:"+pass);
-//        if(db.authenticate(user, pass)){
-//            sessionid = sidGenerator();
-//            db.create_session(user, sessionid);
-//        }else{
-//            sessionid = null;
-//        }
-//        System.out.println(sessionid);
-////        response.getOutputStream().println(sessionid);    
-//    }
 }

@@ -6,8 +6,6 @@
 package fileSharingApp;
 
 import java.io.IOException;
-import java.math.BigInteger;
-import java.security.SecureRandom;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;

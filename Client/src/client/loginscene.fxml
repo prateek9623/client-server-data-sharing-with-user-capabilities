@@ -7,47 +7,45 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="400.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.LoginsceneController">
+
+<VBox prefHeight="422.0" prefWidth="562.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.LoginsceneController">
    <children>
-      <VBox prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <children>
-            <Label alignment="CENTER" contentDisplay="CENTER" text="Login Page" textAlignment="CENTER">
-               <font>
-                  <Font size="27.0" />
-               </font>
-            </Label>
-            <Label fx:id="uservali" textFill="RED">
-               <VBox.margin>
-                  <Insets bottom="10.0" right="10.0" top="10.0" />
-               </VBox.margin></Label>
-            <TextField fx:id="username" onKeyTyped="#validateUsername" promptText="Username" />
-            <Label fx:id="passvali" textFill="RED">
-               <VBox.margin>
-                  <Insets bottom="5.0" left="5.0" right="5.0" top="3.0" />
-               </VBox.margin></Label>
-            <PasswordField fx:id="pass" onKeyTyped="#validatePassword" promptText="Password" />
-            <CheckBox alignment="CENTER_RIGHT" contentDisplay="RIGHT" mnemonicParsing="false" text="Remember me">
-               <VBox.margin>
-                  <Insets bottom="20.0" right="20.0" top="20.0" />
-               </VBox.margin>
-            </CheckBox>
-            <ButtonBar prefHeight="40.0" prefWidth="200.0">
-              <buttons>
-                <Button mnemonicParsing="false" onAction="#register" text="Sign up" />
-                  <Button mnemonicParsing="false" onAction="#login" prefWidth="240.0" text="Login" />
-              </buttons>
-            </ButtonBar>
-         </children>
-         <opaqueInsets>
-            <Insets bottom="100.0" left="100.0" right="100.0" top="100.0" />
-         </opaqueInsets>
-         <padding>
-            <Insets bottom="80.0" left="80.0" right="80.0" top="80.0" />
-         </padding>
-      </VBox>
+      <Label alignment="CENTER" contentDisplay="CENTER" text="Login Page" textAlignment="CENTER">
+         <font>
+            <Font size="27.0" />
+         </font>
+      </Label>
+      <Label fx:id="uservali" textFill="RED">
+         <VBox.margin>
+            <Insets bottom="10.0" right="10.0" top="10.0" />
+         </VBox.margin>
+      </Label>
+      <TextField fx:id="username" onKeyTyped="#validateUsername" promptText="Username" />
+      <Label fx:id="passvali" textFill="RED">
+         <VBox.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="3.0" />
+         </VBox.margin>
+      </Label>
+      <PasswordField fx:id="pass" onKeyTyped="#validatePassword" promptText="Password" />
+      <CheckBox alignment="CENTER_RIGHT" contentDisplay="RIGHT" mnemonicParsing="false" text="Remember me">
+         <VBox.margin>
+            <Insets bottom="20.0" right="20.0" top="20.0" />
+         </VBox.margin>
+      </CheckBox>
+      <ButtonBar prefHeight="53.0" prefWidth="440.0">
+        <buttons>
+          <Button mnemonicParsing="false" onAction="#register" text="Sign up" />
+            <Button mnemonicParsing="false" onAction="#login" prefWidth="240.0" text="Login" />
+        </buttons>
+      </ButtonBar>
    </children>
-</AnchorPane>
+   <opaqueInsets>
+      <Insets bottom="100.0" left="100.0" right="100.0" top="100.0" />
+   </opaqueInsets>
+   <padding>
+      <Insets bottom="80.0" left="80.0" right="80.0" top="80.0" />
+   </padding>
+</VBox>

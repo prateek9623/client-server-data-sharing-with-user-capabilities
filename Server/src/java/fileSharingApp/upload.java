@@ -26,34 +26,35 @@ import javax.servlet.http.Part;
  */
 @MultipartConfig
 public class upload extends HttpServlet {
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-            Part sessionidpart = request.getPart("sessionid");
-            String sessionid = (String) request.getParameter("sessionid");
-            Part filePart = request.getPart("file");
-            String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
-            InputStream fileContent = filePart.getInputStream();
-            File file = new File("D:\\Uploadfiles\\"+randGenerator()+"12345"+fileName);
-            Files.copy(fileContent, file.toPath());
-            dbconnect db = dbconnect.dbconnectref();
-            System.out.println(sessionid+"12313");
-            if(db.check_session(sessionid)){
-            if(db.uploadfileentry(fileName, sessionid,file.length()+"" , file.getPath())){
+        Part sessionidpart = request.getPart("sessionid");
+        String sessionid = (String) request.getParameter("sessionid");
+        Part filePart = request.getPart("file");
+        String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+        InputStream fileContent = filePart.getInputStream();
+        File file = new File("D:\\Uploadfiles\\" + randGenerator() + "12345" + fileName);
+        Files.copy(fileContent, file.toPath());
+        dbconnect db = dbconnect.dbconnectref();
+        System.out.println(sessionid + "12313");
+        if (db.check_session(sessionid)) {
+            if (db.uploadfileentry(fileName, sessionid, file.length() + "", file.getPath())) {
                 response.getOutputStream().print("SUCCESS");
                 db.update_session(sessionid);
-            }
-            else{
+            } else {
                 response.getOutputStream().print("FAILED");
             }
-        }else{
+        } else {
             response.getOutputStream().print("INVALID");
             System.out.println("Sessionnotcreated");
         }
     }
-    private String randGenerator(){
+
+    private String randGenerator() {
         SecureRandom random = new SecureRandom();
-        String random_string = new BigInteger(10,random).toString(32);
+        String random_string = new BigInteger(10, random).toString(32);
         return random_string;
     }
 }

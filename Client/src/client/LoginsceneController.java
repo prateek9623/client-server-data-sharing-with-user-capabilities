@@ -59,11 +59,12 @@ public class LoginsceneController implements Initializable {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("mainscene.fxml"));
                 Parent register = loader.load();
                 Scene scene = new Scene(register);
+                scene.getStylesheets().add(LoginsceneController.class.getResource("jfoenix-components.css").toExternalForm());
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                 stage.hide();
                 stage.setScene(scene);
-                stage.setMinHeight(720);
-                stage.setMinWidth(1280);
+//                stage.setMinHeight(720);
+//                stage.setMinWidth(1280);
                 stage.show();
                 MainsceneController controller = loader.getController();
                 controller.passSessionId(sessionID);

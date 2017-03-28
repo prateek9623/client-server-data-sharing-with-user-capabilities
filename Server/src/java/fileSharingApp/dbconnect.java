@@ -2,17 +2,19 @@ package fileSharingApp;
 
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class dbconnect {
-    private static dbconnect connect = new dbconnect();
+    private static dbconnect connect1 = new dbconnect();
     private Connection con;
     private Statement st;
     private ResultSet rs;
     private dbconnect(){}
     public static dbconnect dbconnectref(){
-        return connect;
+        return connect1;
     }
     private void connect(){
         try {
@@ -51,7 +53,7 @@ public class dbconnect {
     public boolean create_session(String username,String sid){
         try {
             connect();
-            String query = "INSERT INTO `sessions`(`sessionid`,`username`) VALUES('"+sid+"','"+username+"') ON DUPLICATE KEY UPDATE `sessionid` = '"+sid+"', `update_time` = current_timestamp();";
+            String query = "INSERT INTO `sessions`(`sessionid`,`userid`,`status`) VALUES('"+sid+"',(select `userid` from `user` where `username` = '"+username+"'),'true') ON DUPLICATE KEY UPDATE `sessionid` = '"+sid+"', `update_time` = current_timestamp();";
             PreparedStatement insert = con.prepareStatement(query);
             boolean result = insert.executeUpdate()>0;
             return result;
@@ -63,32 +65,33 @@ public class dbconnect {
     public void delete_session(String sid){
         try{
             connect();
-            String query = "DELETE FROM sessions WHERE sessionid = '"+sid+"' ";
+            String query = "UPDATE `client-server-data-sharing`.`sessions` SET `status`='false' WHERE `sessionid`= '"+sid+"' ";
             PreparedStatement delete = con.prepareStatement(query);
             delete.execute();
         } catch (SQLException ex) {
             System.out.println("Session not deleted: "+ex);
         }
     }
-    public boolean check_session(String sid){
-        try{
-            connect();
-            String query = "SELECT * from sessions where sessioid = '"+sid+"' ";
-            rs = st.executeQuery(query);
-            rs.last();
-            int i = rs.getRow();
-            return i>0;
-        } catch (SQLException ex) {
-            Logger.getLogger(dbconnect.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return false;
-    }
+//    public boolean check_session(String sid){
+//        try{
+//            connect();
+//            String query = "SELECT * from sessions where sessionid = '"+sid+"' AND `status`='true'";
+//            rs = st.executeQuery(query);
+//            rs.last();
+//            int i = rs.getRow();
+//            return i>0;
+//        } catch (SQLException ex) {
+//            Logger.getLogger(dbconnect.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        return false;
+//    }
     public boolean update_session(String sid){
         try{
+            connect();
             String query =  "UPDATE `sessions`\n" +
                             "SET\n" +
                             "`update_time` = CURRENT_TIMESTAMP()\n" +
-                            "WHERE `sessionid` = '"+sid+"'";
+                            "WHERE `sessionid` = '"+sid+"' AND `status` = 'true'";
             PreparedStatement update = con.prepareStatement(query);
             int i = update.executeUpdate();
             return i>0;
@@ -96,6 +99,61 @@ public class dbconnect {
             System.out.println("Couldnt update session: "+ex);
         }
         return false;
+    }
+    public boolean uploadfileentry(String filename, String sessionid, String filetype, String path){
+        try{
+            connect();
+            String query = "INSERT INTO `client-server-data-sharing`.`file_list`\n" +
+                            "(`file_name`,\n" +
+                            "`owner_id`,\n"+
+                            "`file_size`,\n" +
+                            "`path`)\n" +
+                            "VALUES\n" +
+                            "(\""+filename+"\",\n" +
+                            "(select userid from sessions where sessionid = \""+sessionid+"\"),\n" +
+                            "\""+filetype+"\",\n" +
+                            "\""+path+"\");";
+            PreparedStatement insert = con.prepareStatement(query);
+            return insert.executeUpdate()>0;
+        } catch (SQLException ex) {
+            System.out.println(ex);
+            return false;
+        }
+    }
+    public ResultSet getfilelist(String sessionid){
+        try{
+            connect();
+            ResultSet rs = st.executeQuery("Select * from file_list where owner_id = (select userid from sessions where sessionid = '"+sessionid+"')");
+            rs.last();
+            return rs;
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+        return null;
+    }
+
+    String getFilePath(String sessionid, String fileid) {
+        try {
+            connect();
+            ResultSet rs = st.executeQuery("SELECT \n" +
+                                            "    path\n" +
+                                            "FROM\n" +
+                                            "    file_list\n" +
+                                            "WHERE\n" +
+                                            "    owner_id = (SELECT \n" +
+                                            "            userid\n" +
+                                            "        FROM\n" +
+                                            "            sessions\n" +
+                                            "        WHERE\n" +
+                                            "            sessionid = '"+sessionid+"')\n" +
+                                            "        AND file_id = '"+fileid+"'");
+            rs.first();
+            System.out.println(rs.getString("path"));
+            return rs.getString("path");
+        } catch (SQLException ex) {
+            System.out.println(ex);
+            return null;
+        }
     }
     
 }

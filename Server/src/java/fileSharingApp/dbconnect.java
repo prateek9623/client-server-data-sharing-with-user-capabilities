@@ -155,5 +155,21 @@ public class dbconnect {
             return null;
         }
     }
+
+    String delete(String sessionid, String deletefile) {
+        try{
+           connect();
+           String getfilepath = getFilePath(sessionid, deletefile);
+           if(getfilepath!=null||!getfilepath.equals("")){
+                String query = "DELETE FROM file_list WHERE owner_id = (Select userid from sessions where sessionid = '"+sessionid+"') AND file_id ='"+deletefile+"'";
+                PreparedStatement delete = con.prepareStatement(query);
+                delete.execute();
+                return getfilepath;
+           }
+       } catch (SQLException ex) {
+            Logger.getLogger(dbconnect.class.getName()).log(Level.SEVERE, null, ex);
+        }
+       return null;
+    }
     
 }

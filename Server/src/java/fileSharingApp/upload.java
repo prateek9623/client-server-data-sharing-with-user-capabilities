@@ -39,7 +39,6 @@ public class upload extends HttpServlet {
         File file = new File(filepath);
         Files.copy(fileContent, file.toPath());
         dbconnect db = dbconnect.dbconnectref();
-        System.out.println(sessionid + "12313");
         if (db.update_session(sessionid)&&db.uploadfileentry(fileName, sessionid, file.length()+"", filepath)) {
             response.setStatus(response.SC_ACCEPTED);
         }else{

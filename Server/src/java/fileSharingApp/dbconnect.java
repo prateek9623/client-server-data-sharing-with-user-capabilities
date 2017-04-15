@@ -4,6 +4,8 @@ package fileSharingApp;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class dbconnect {
     private static dbconnect connect1 = new dbconnect();
@@ -168,5 +170,50 @@ public class dbconnect {
        }
        return null;
     }
-    
+
+    String check_password(String sessionid, String sharerpassword) {
+        try{
+            connect();
+            String query = "SELECT userid FROM user WHERE (SELECT userid FROM sessions WHERE sessionid = '"+sessionid+"') AND password = '"+sharerpassword+"'";
+            ResultSet rs = st.executeQuery(query);
+            rs.last();
+            boolean result = rs.getRow()>0;
+            if(result)
+                return rs.getString("userid");
+            else 
+                return "";
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return "";
+        }
+    }
+
+    String check_userexist(String sharetoid) {
+        try{
+            connect();
+            String query = "SELECT userid FROM user WHERE username = '"+sharetoid+"'";
+            ResultSet rs = st.executeQuery(query);
+            rs.last();
+            boolean result = rs.getRow()>0;
+            if(result)
+                return rs.getString("userid");
+            else 
+                return "";
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return "";
+        }
+    }
+
+    boolean share(String fileid, String sharetoid, String userid) {
+        try{
+            connect();
+            String query = "INSERT INTO `shared_file_list` (file_id, sharer_id, shared_to_id) VALUES ('"+fileid+"', '"+userid+"', '"+sharetoid+"');";
+            PreparedStatement insert = con.prepareStatement(query);
+            return insert.executeUpdate()>0;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
 }

@@ -4,8 +4,6 @@ package fileSharingApp;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class dbconnect {
     private static dbconnect connect1 = new dbconnect();
@@ -72,19 +70,19 @@ public class dbconnect {
             System.out.println("Session not deleted: "+ex);
         }
     }
-//    public boolean check_session(String sid){
-//        try{
-//            connect();
-//            String query = "SELECT * from sessions where sessionid = '"+sid+"' AND `status`='true'";
-//            rs = st.executeQuery(query);
-//            rs.last();
-//            int i = rs.getRow();
-//            return i>0;
-//        } catch (SQLException ex) {
-//            Logger.getLogger(dbconnect.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        return false;
-//    }
+    public String check_session(String sid){
+        try{
+            connect();
+            String query = "SELECT userid from sessions where sessionid = '"+sid+"' AND `status`='true'";
+            rs = st.executeQuery(query);
+            rs.last();
+            String i = rs.getString("userid");
+            return i;
+        } catch (SQLException ex) {
+            
+        }
+        return null;
+    }
     public boolean update_session(String sid){
         try{
             connect();
@@ -167,8 +165,7 @@ public class dbconnect {
                 return getfilepath;
            }
        } catch (SQLException ex) {
-            Logger.getLogger(dbconnect.class.getName()).log(Level.SEVERE, null, ex);
-        }
+       }
        return null;
     }
     

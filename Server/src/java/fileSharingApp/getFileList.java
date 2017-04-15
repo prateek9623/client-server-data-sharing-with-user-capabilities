@@ -41,7 +41,7 @@ public class getFileList extends HttpServlet {
 //                response.setContentType("application/json");
                 response.getWriter().write(filelistArray.toString());
             } catch (SQLException ex) {
-                Logger.getLogger(getFileList.class.getName()).log(Level.SEVERE, null, ex);
+                
             }
             
         }else{

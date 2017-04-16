@@ -2,7 +2,6 @@ package fileSharingApp;
 
 
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -120,18 +119,6 @@ public class dbconnect {
             return false;
         }
     }
-    public ResultSet getfilelist(String sessionid){
-        try{
-            connect();
-            ResultSet rs = st.executeQuery("Select * from file_list where owner_id = (select userid from sessions where sessionid = '"+sessionid+"')");
-            rs.last();
-            return rs;
-        } catch (Exception ex) {
-            System.out.println(ex);
-        }
-        return null;
-    }
-
     String getFilePath(String sessionid, String fileid) {
         try {
             connect();
@@ -215,5 +202,70 @@ public class dbconnect {
             ex.printStackTrace();
             return false;
         }
+    }
+
+    boolean getfilelist(String sessionid, List<file> filelist) {
+        boolean status = false;
+        try{
+            connect();
+            String query = "SELECT \n" +
+                            "    f.file_id,\n" +
+                            "    f.file_name,\n" +
+                            "    f.file_size,\n" +
+                            "    f.stored_on,\n" +
+                            "    u.username,\n" +
+                            "    'false' shared\n" +
+                            "FROM\n" +
+                            "    file_list f\n" +
+                            "        JOIN\n" +
+                            "    user u\n" +
+                            "WHERE\n" +
+                            "    f.owner_id = u.userid\n" +
+                            "        AND f.owner_id = (SELECT \n" +
+                            "            userid\n" +
+                            "        FROM\n" +
+                            "            sessions\n" +
+                            "        WHERE\n" +
+                            "            sessionid = '"+sessionid+"') \n" +
+                            "UNION ALL SELECT \n" +
+                            "    f.file_id,\n" +
+                            "    f.file_name,\n" +
+                            "    f.file_size,\n" +
+                            "    s.shared_on,\n" +
+                            "    (SELECT \n" +
+                            "            username\n" +
+                            "        FROM\n" +
+                            "            user\n" +
+                            "        WHERE\n" +
+                            "            userid = s.sharer_id) 'username',\n" +
+                            "    'true' shared\n" +
+                            "FROM\n" +
+                            "    file_list f\n" +
+                            "        JOIN\n" +
+                            "    shared_file_list s\n" +
+                            "WHERE\n" +
+                            "    f.file_id = s.file_id\n" +
+                            "        AND s.shared_to_id = (SELECT \n" +
+                            "            userid\n" +
+                            "        FROM\n" +
+                            "            sessions\n" +
+                            "        WHERE\n" +
+                            "            sessionid = '"+sessionid+"');";
+            ResultSet rs = st.executeQuery(query);
+            while(rs.next()){
+                file file1 = new file();
+                file1.setFile_id(rs.getString(1));
+                file1.setFile_name(rs.getString(2));
+                file1.setFile_size(rs.getString(3));
+                file1.setStored_on(rs.getString(4));
+                file1.setOwnerusername(rs.getString(5));
+                file1.setShared(rs.getString(6));
+                filelist.add(file1);
+                status=true;
+            }
+        } catch (SQLException ex) { 
+            return false;
+        }
+        return status;
     }
 }

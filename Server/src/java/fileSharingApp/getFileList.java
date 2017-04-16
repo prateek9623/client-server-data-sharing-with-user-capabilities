@@ -3,6 +3,8 @@ package fileSharingApp;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -15,38 +17,33 @@ import org.json.simple.JSONObject;
 
 @WebServlet(name = "getFileList", urlPatterns = {"/getFileList"})
 public class getFileList extends HttpServlet {
-     @Override
+
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String sessionid = request.getParameter("sessionid");
         dbconnect connect = dbconnect.dbconnectref();
-        if(connect.update_session(sessionid)){
-            ResultSet rs= connect.getfilelist(sessionid);
+        if (connect.update_session(sessionid)) {
             response.setStatus(response.SC_ACCEPTED);
-            try {
-                rs.first();
-                JSONArray filelistArray = new JSONArray();
-                while(!rs.isAfterLast()){
+            List<file> filelist = new ArrayList<>();
+            JSONArray filelistArray = new JSONArray();
+            if (connect.getfilelist(sessionid, filelist)) {
+                for (int i = 0; i < filelist.size(); i++) {
                     JSONObject obj = new JSONObject();
-                    obj.put("file_id", rs.getString(1));
-                    obj.put("file_name", rs.getString(2));
-                    obj.put("file_size", rs.getString(4));
-                    obj.put("stored_on", rs.getString(5));
-                    obj.put("path", rs.getString(6).substring(rs.getString(6).indexOf("12345")+5));
+                    obj.put("file_id", filelist.get(i).getFile_id());
+                    obj.put("file_name", filelist.get(i).getFile_name());
+                    obj.put("file_size", filelist.get(i).getFile_size());
+                    obj.put("stored_on", filelist.get(i).getStored_on());
+                    obj.put("ownerusername", filelist.get(i).getOwnerusername());
+                    obj.put("shared", filelist.get(i).getShared());
                     filelistArray.add(obj);
-                    rs.next();
-//                    response.setContentType("application/json");
-//                    response.getOutputStream().print(obj.toJSONString());
                 }
-//                response.setContentType("application/json");
-                response.getWriter().write(filelistArray.toString());
-            } catch (SQLException ex) {
-                
             }
-            
-        }else{
+            response.getWriter().write(filelistArray.toString());
+
+        } else {
             response.setStatus(response.SC_FORBIDDEN);
         }
-   }
+    }
 
 }

@@ -127,13 +127,25 @@ public class dbconnect {
                                             "FROM\n" +
                                             "    file_list\n" +
                                             "WHERE\n" +
-                                            "    owner_id = (SELECT \n" +
+                                            "    file_id = "+fileid+"\n" +
+                                            "        AND (owner_id = (SELECT \n" +
                                             "            userid\n" +
                                             "        FROM\n" +
                                             "            sessions\n" +
                                             "        WHERE\n" +
                                             "            sessionid = '"+sessionid+"')\n" +
-                                            "        AND file_id = '"+fileid+"'");
+                                            "        OR owner_id = (SELECT \n" +
+                                            "            sharer_id\n" +
+                                            "        FROM\n" +
+                                            "            shared_file_list\n" +
+                                            "        WHERE\n" +
+                                            "            file_id = "+fileid+"\n" +
+                                            "                AND shared_to_id = (SELECT \n" +
+                                            "                    userid\n" +
+                                            "                FROM\n" +
+                                            "                    sessions\n" +
+                                            "                WHERE\n" +
+                                            "                    sessionid = '"+sessionid+"')))");
             rs.first();
             System.out.println(rs.getString("path"));
             return rs.getString("path");
@@ -145,7 +157,6 @@ public class dbconnect {
 
     String delete(String sessionid, String deletefile) {
         try{
-           connect();
            String getfilepath = getFilePath(sessionid, deletefile);
            if(getfilepath!=null||!getfilepath.equals("")){
                 String query = "DELETE FROM file_list WHERE owner_id = (Select userid from sessions where sessionid = '"+sessionid+"') AND file_id ='"+deletefile+"'";
@@ -153,9 +164,11 @@ public class dbconnect {
                 delete.execute();
                 return getfilepath;
            }
+           return "null";
        } catch (SQLException ex) {
+            System.out.println(ex);
+            return "null";
        }
-       return null;
     }
 
     String check_password(String sessionid, String sharerpassword) {

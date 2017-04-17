@@ -3,6 +3,8 @@ package fileSharingApp;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -54,6 +56,7 @@ public class download extends HttpServlet {
                     response.setContentLength((int) tempfile.length());
                     response.setHeader("Content-Disposition", "attachment; filename=\"" + tempfile.getName() + "\"");
                 } catch (CryptoException ex) {
+                    Logger.getLogger(download.class.getName()).log(Level.SEVERE, null, ex);
                     response.setStatus(response.SC_CONFLICT);
                     return;
                 }

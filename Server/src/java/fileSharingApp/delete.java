@@ -26,8 +26,8 @@ public class delete extends HttpServlet {
         dbconnect db = dbconnect.dbconnectref();
         if (db.update_session(sessionid)) {
             System.out.println(sessionid+deletefile);
-            String filepath;
-            if(!(filepath = db.delete(sessionid, deletefile)).equals("")){
+            String filepath = db.delete(sessionid, deletefile);
+            if(!filepath.equals("")||!filepath.equals("null")){
                 File file = new File(filepath);
                 file.delete();
                 System.out.println(sessionid+deletefile);

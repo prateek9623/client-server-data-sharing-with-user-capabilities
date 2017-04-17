@@ -61,6 +61,6 @@ public class aes {
                 | InvalidKeyException | BadPaddingException
                 | IllegalBlockSizeException | IOException ex) {
             throw new CryptoException("Error encrypting/decrypting file", ex);
-        }
+        } 
     }
 }

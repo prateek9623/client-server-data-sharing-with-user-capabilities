@@ -36,6 +36,7 @@ public class getFileList extends HttpServlet {
                     obj.put("stored_on", filelist.get(i).getStored_on());
                     obj.put("ownerusername", filelist.get(i).getOwnerusername());
                     obj.put("shared", filelist.get(i).getShared());
+                    obj.put("predelete", filelist.get(i).getPredelete());
                     filelistArray.add(obj);
                 }
             }

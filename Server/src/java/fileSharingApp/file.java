@@ -17,6 +17,15 @@ public class file {
     private String stored_on;
     private String ownerusername;
     private String shared;
+    private String predelete;
+
+    public String getPredelete() {
+        return predelete;
+    }
+
+    public void setPredelete(String predelete) {
+        this.predelete = predelete;
+    }
 
     public String getShared() {
         return shared;

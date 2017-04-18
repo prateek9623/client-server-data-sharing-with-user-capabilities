@@ -22,15 +22,15 @@ public class delete extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String sessionid = (String) request.getParameter("sessionid");
-        String deletefile = (String) request.getParameter("deletefile");
         dbconnect db = dbconnect.dbconnectref();
         if (db.update_session(sessionid)) {
-            System.out.println(sessionid+deletefile);
-            String filepath = db.delete(sessionid, deletefile);
+            String deletefile = (String) request.getParameter("deletefile");
+            String password = (String) request.getParameter("password");
+            String filepath = db.delete(sessionid, deletefile,password);
             if(!filepath.equals("")||!filepath.equals("null")){
                 File file = new File(filepath);
                 file.delete();
-                System.out.println(sessionid+deletefile);
+//                System.out.println(sessionid+deletefile);
                 response.setStatus(response.SC_ACCEPTED);
             }
             else{

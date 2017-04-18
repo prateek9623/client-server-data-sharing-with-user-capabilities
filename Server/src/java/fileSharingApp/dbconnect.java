@@ -155,11 +155,11 @@ public class dbconnect {
         }
     }
 
-    String delete(String sessionid, String deletefile) {
+    String delete(String sessionid, String deletefile, String password) {
         try{
            String getfilepath = getFilePath(sessionid, deletefile);
            if(getfilepath!=null||!getfilepath.equals("")){
-                String query = "DELETE FROM file_list WHERE owner_id = (Select userid from sessions where sessionid = '"+sessionid+"') AND file_id ='"+deletefile+"'";
+                String query = "DELETE FROM file_list WHERE owner_id = (Select userid from user where userid=(Select userid from sessions where sessionid = '"+sessionid+"') and password = '"+password+"') AND file_id ='"+deletefile+"'";
                 PreparedStatement delete = con.prepareStatement(query);
                 delete.execute();
                 return getfilepath;
@@ -221,13 +221,14 @@ public class dbconnect {
         boolean status = false;
         try{
             connect();
-            String query = "SELECT \n" +
+            String query =  "SELECT \n" +
                             "    f.file_id,\n" +
                             "    f.file_name,\n" +
                             "    f.file_size,\n" +
                             "    f.stored_on,\n" +
                             "    u.username,\n" +
-                            "    'false' shared\n" +
+                            "    'false' shared,\n" +
+                            "    f.predelete\n" +
                             "FROM\n" +
                             "    file_list f\n" +
                             "        JOIN\n" +
@@ -251,7 +252,8 @@ public class dbconnect {
                             "            user\n" +
                             "        WHERE\n" +
                             "            userid = s.sharer_id) 'username',\n" +
-                            "    'true' shared\n" +
+                            "    'true' shared,\n" +
+                            "    'false' predelete\n" +
                             "FROM\n" +
                             "    file_list f\n" +
                             "        JOIN\n" +
@@ -273,6 +275,7 @@ public class dbconnect {
                 file1.setStored_on(rs.getString(4));
                 file1.setOwnerusername(rs.getString(5));
                 file1.setShared(rs.getString(6));
+                file1.setPredelete(rs.getString(7));
                 filelist.add(file1);
                 status=true;
             }
@@ -280,5 +283,73 @@ public class dbconnect {
             return false;
         }
         return status;
+    }
+
+    boolean predel(String sessionid, String fileid) {
+        try{
+            connect();
+            String query =  "UPDATE `client-server-data-sharing`.`file_list` \n" +
+                            "SET \n" +
+                            "    `predelete` = 'true'\n" +
+                            "WHERE\n" +
+                            "    `file_id` = '"+fileid+"'\n" +
+                            "        AND owner_id = (SELECT \n" +
+                            "            userid\n" +
+                            "        FROM\n" +
+                            "            sessions\n" +
+                            "        WHERE\n" +
+                            "            sessionid = '"+sessionid+"');";
+            PreparedStatement update = con.prepareStatement(query);
+            int i = update.executeUpdate();
+            return i>0;
+        } catch (SQLException ex) {
+            System.out.println("Couldnt remove file: "+ex);
+        }
+        return false;
+    }
+
+    boolean restore(String sessionid, String fileid) {
+        try{
+            connect();
+            String query =  "UPDATE `client-server-data-sharing`.`file_list` \n" +
+                            "SET \n" +
+                            "    `predelete` = 'false'\n" +
+                            "WHERE\n" +
+                            "    `file_id` = '"+fileid+"'\n" +
+                            "        AND owner_id = (SELECT \n" +
+                            "            userid\n" +
+                            "        FROM\n" +
+                            "            sessions\n" +
+                            "        WHERE\n" +
+                            "            sessionid = '"+sessionid+"');";
+            PreparedStatement update = con.prepareStatement(query);
+            int i = update.executeUpdate();
+            return i>0;
+        } catch (SQLException ex) {
+            System.out.println("Couldnt remove file: "+ex);
+        }
+        return false;
+    }
+
+    boolean removeshare(String sessionid, String fileid) {
+        try{
+            connect();
+            String query =  "DELETE FROM shared_file_list \n" +
+                            "WHERE\n" +
+                            "    file_id = '"+fileid+"'\n" +
+                            "    AND (shared_to_id = (SELECT \n" +
+                            "        userid\n" +
+                            "    FROM\n" +
+                            "        sessions\n" +
+                            "    \n" +
+                            "    WHERE\n" +
+                            "        sessionid = '"+sessionid+"'));";
+            PreparedStatement update = con.prepareStatement(query);
+            int i = update.executeUpdate();
+            return i>0;
+        } catch (SQLException ex) {
+            System.out.println("Couldnt remove file: "+ex);
+        }
+        return false;
     }
 }

@@ -65,8 +65,8 @@
         <servlet-class>fileSharingApp.restore</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>mfgetfilelist</servlet-name>
-        <servlet-class>fileSharingApp.mfgetfilelist</servlet-class>
+        <servlet-name>getfilelist</servlet-name>
+        <servlet-class>fileSharingApp.getfilelist</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>login</servlet-name>
@@ -125,8 +125,8 @@
         <url-pattern>/restore</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>mfgetfilelist</servlet-name>
-        <url-pattern>/mfgetfilelist</url-pattern>
+        <servlet-name>getfilelist</servlet-name>
+        <url-pattern>/getfilelist</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

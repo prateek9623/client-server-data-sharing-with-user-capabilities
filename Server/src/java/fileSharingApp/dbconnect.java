@@ -310,8 +310,7 @@ public class dbconnect {
                             "                sessions\n" +
                             "            WHERE\n" +
                             "                sessionid = 'asdasd')))) s\n" +
-                            "ORDER BY s.file_name ASC;" +
-                                                        "ORDER BY s.file_name ASC;";
+                            "ORDER BY s.file_name ASC;";
             ResultSet rs = st.executeQuery(query);
             while(rs.next()){
                 file file1 = new file();

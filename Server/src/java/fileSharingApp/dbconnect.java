@@ -99,7 +99,7 @@ public class dbconnect {
         }
         return false;
     }
-    public boolean uploadfileentry(String filename, String sessionid, String filetype, String path){
+    public boolean uploadfileentry(String filename, String sessionid, String filesize, String path){
         try{
             connect();
             String query = "INSERT INTO `client-server-data-sharing`.`file_list`\n" +
@@ -110,7 +110,7 @@ public class dbconnect {
                             "VALUES\n" +
                             "(\""+filename+"\",\n" +
                             "(select userid from sessions where sessionid = \""+sessionid+"\"),\n" +
-                            "\""+filetype+"\",\n" +
+                            "\""+filesize+"\",\n" +
                             "\""+path+"\");";
             PreparedStatement insert = con.prepareStatement(query);
             return insert.executeUpdate()>0;
@@ -147,7 +147,6 @@ public class dbconnect {
                                             "                WHERE\n" +
                                             "                    sessionid = '"+sessionid+"')))");
             rs.first();
-            System.out.println(rs.getString("path"));
             return rs.getString("path");
         } catch (SQLException ex) {
             System.out.println(ex);
@@ -349,6 +348,31 @@ public class dbconnect {
             return i>0;
         } catch (SQLException ex) {
             System.out.println("Couldnt remove file: "+ex);
+        }
+        return false;
+    }
+
+    boolean updateFileDetails(String sessionid, String path, String name, String fileid, String filesize) {
+        try{
+            connect();
+            String query =  "UPDATE `client-server-data-sharing`.`file_list` \n" +
+                            "SET \n" +
+                            "    `file_name` = '"+name+"',\n" +
+                            "    `file_size` = "+filesize+",\n" +
+                            "    `path` = '"+path+"'\n" +
+                            "WHERE\n" +
+                            "    `file_id` = '"+fileid+"'\n" +
+                            "        AND owner_id = (SELECT \n" +
+                            "            userid\n" +
+                            "        FROM\n" +
+                            "            sessions\n" +
+                            "        WHERE\n" +
+                            "            sessionid = '"+sessionid+"')";
+            PreparedStatement update = con.prepareStatement(query);
+            int i = update.executeUpdate();
+            return i>0;
+        } catch (SQLException ex) {
+            System.out.println("Couldnt rename file: "+ex);
         }
         return false;
     }

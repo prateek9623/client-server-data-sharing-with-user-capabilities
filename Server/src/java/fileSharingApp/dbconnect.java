@@ -216,7 +216,7 @@ public class dbconnect {
         }
     }
 
-    boolean mfgetfilelist(String sessionid, List<file> filelist) {
+    boolean getfilelist(String sessionid, List<file> filelist) {
         boolean status = false;
         try{
             connect();
@@ -228,7 +228,8 @@ public class dbconnect {
                             "            f.file_name,\n" +
                             "            f.file_size,\n" +
                             "            f.stored_on,\n" +
-                            "            u.username,\n" +
+                            "            u.username AS sharer,\n" +
+                            "            u.username AS sharedto,\n" +
                             "            (SELECT \n" +
                             "                    COUNT(*)\n" +
                             "                FROM\n" +
@@ -236,7 +237,8 @@ public class dbconnect {
                             "                WHERE\n" +
                             "                    s.file_id = f.file_id\n" +
                             "                        AND s.sharer_id = f.owner_id) AS shared,\n" +
-                            "            f.predelete\n" +
+                            "            f.predelete,\n" +
+                            "            'mf' directory\n" +
                             "    FROM\n" +
                             "        file_list f\n" +
                             "    JOIN user u\n" +
@@ -247,8 +249,69 @@ public class dbconnect {
                             "            FROM\n" +
                             "                sessions\n" +
                             "            WHERE\n" +
-                            "                sessionid = '"+sessionid+"') ) s\n" +
-                            "ORDER BY s.file_name ASC;";
+                            "                sessionid = 'asdasd') UNION ALL SELECT \n" +
+                            "        f.file_id,\n" +
+                            "            f.file_name,\n" +
+                            "            f.file_size,\n" +
+                            "            sh.shared_on,\n" +
+                            "            (SELECT \n" +
+                            "                    username\n" +
+                            "                FROM\n" +
+                            "                    user\n" +
+                            "                WHERE\n" +
+                            "                    userid = sh.sharer_id) AS sharer,\n" +
+                            "            (SELECT \n" +
+                            "                    username\n" +
+                            "                FROM\n" +
+                            "                    user\n" +
+                            "                WHERE\n" +
+                            "                    userid = sh.shared_to_id) AS sharedto,\n" +
+                            "            1 shared,\n" +
+                            "            'false' predelete,\n" +
+                            "            'shared' directory\n" +
+                            "    FROM\n" +
+                            "        file_list f\n" +
+                            "    JOIN shared_file_list sh\n" +
+                            "    WHERE\n" +
+                            "        f.file_id = sh.file_id\n" +
+                            "            AND sh.shared_to_id = (SELECT \n" +
+                            "                userid\n" +
+                            "            FROM\n" +
+                            "                sessions\n" +
+                            "            WHERE\n" +
+                            "                sessionid = 'asdasd') UNION ALL (SELECT \n" +
+                            "        f.file_id,\n" +
+                            "            f.file_name,\n" +
+                            "            f.file_size,\n" +
+                            "            sh.shared_on,\n" +
+                            "            (SELECT \n" +
+                            "                    username\n" +
+                            "                FROM\n" +
+                            "                    user\n" +
+                            "                WHERE\n" +
+                            "                    userid = sh.sharer_id) AS sharer,\n" +
+                            "            (SELECT \n" +
+                            "                    username\n" +
+                            "                FROM\n" +
+                            "                    user\n" +
+                            "                WHERE\n" +
+                            "                    userid = sh.shared_to_id) AS sharedto,\n" +
+                            "            1 shared,\n" +
+                            "            'false' predelete,\n" +
+                            "            'sharedto' directory\n" +
+                            "    FROM\n" +
+                            "        file_list f\n" +
+                            "    JOIN shared_file_list sh\n" +
+                            "    WHERE\n" +
+                            "        f.file_id = sh.file_id\n" +
+                            "            AND (sh.sharer_id = (SELECT \n" +
+                            "                userid\n" +
+                            "            FROM\n" +
+                            "                sessions\n" +
+                            "            WHERE\n" +
+                            "                sessionid = 'asdasd')))) s\n" +
+                            "ORDER BY s.file_name ASC;" +
+                                                        "ORDER BY s.file_name ASC;";
             ResultSet rs = st.executeQuery(query);
             while(rs.next()){
                 file file1 = new file();
@@ -257,8 +320,10 @@ public class dbconnect {
                 file1.setFile_size(rs.getString(3));
                 file1.setStored_on(rs.getString(4));
                 file1.setOwnerusername(rs.getString(5));
-                file1.setShared(rs.getString(6));
-                file1.setPredelete(rs.getString(7));
+                file1.setSharedto(rs.getString(6));
+                file1.setShared(rs.getString(7));
+                file1.setPredelete(rs.getString(8));
+                file1.setDirectory(rs.getString(9));
                 filelist.add(file1);
                 status=true;
             }

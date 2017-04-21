@@ -16,8 +16,26 @@ public class file {
     private String file_size;
     private String stored_on;
     private String ownerusername;
+    private String sharedto;
     private String shared;
     private String predelete;
+    private String directory;
+
+    public String getSharedto() {
+        return sharedto;
+    }
+
+    public void setSharedto(String sharedto) {
+        this.sharedto = sharedto;
+    }
+
+    public String getDirectory() {
+        return directory;
+    }
+
+    public void setDirectory(String directory) {
+        this.directory = directory;
+    }
 
     public String getPredelete() {
         return predelete;

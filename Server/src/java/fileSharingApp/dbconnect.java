@@ -216,55 +216,39 @@ public class dbconnect {
         }
     }
 
-    boolean getfilelist(String sessionid, List<file> filelist) {
+    boolean mfgetfilelist(String sessionid, List<file> filelist) {
         boolean status = false;
         try{
             connect();
-            String query =  "SELECT \n" +
-                            "    f.file_id,\n" +
-                            "    f.file_name,\n" +
-                            "    f.file_size,\n" +
-                            "    f.stored_on,\n" +
-                            "    u.username,\n" +
-                            "    'false' shared,\n" +
-                            "    f.predelete\n" +
+            String query =  " SELECT \n" +
+                            "    *\n" +
                             "FROM\n" +
-                            "    file_list f\n" +
-                            "        JOIN\n" +
-                            "    user u\n" +
-                            "WHERE\n" +
-                            "    f.owner_id = u.userid\n" +
-                            "        AND f.owner_id = (SELECT \n" +
-                            "            userid\n" +
-                            "        FROM\n" +
-                            "            sessions\n" +
-                            "        WHERE\n" +
-                            "            sessionid = '"+sessionid+"') \n" +
-                            "UNION ALL SELECT \n" +
-                            "    f.file_id,\n" +
-                            "    f.file_name,\n" +
-                            "    f.file_size,\n" +
-                            "    s.shared_on,\n" +
                             "    (SELECT \n" +
-                            "            username\n" +
-                            "        FROM\n" +
-                            "            user\n" +
-                            "        WHERE\n" +
-                            "            userid = s.sharer_id) 'username',\n" +
-                            "    'true' shared,\n" +
-                            "    'false' predelete\n" +
-                            "FROM\n" +
-                            "    file_list f\n" +
-                            "        JOIN\n" +
-                            "    shared_file_list s\n" +
-                            "WHERE\n" +
-                            "    f.file_id = s.file_id\n" +
-                            "        AND s.shared_to_id = (SELECT \n" +
-                            "            userid\n" +
-                            "        FROM\n" +
-                            "            sessions\n" +
-                            "        WHERE\n" +
-                            "            sessionid = '"+sessionid+"');";
+                            "        f.file_id,\n" +
+                            "            f.file_name,\n" +
+                            "            f.file_size,\n" +
+                            "            f.stored_on,\n" +
+                            "            u.username,\n" +
+                            "            (SELECT \n" +
+                            "                    COUNT(*)\n" +
+                            "                FROM\n" +
+                            "                    shared_file_list s\n" +
+                            "                WHERE\n" +
+                            "                    s.file_id = f.file_id\n" +
+                            "                        AND s.sharer_id = f.owner_id) AS shared,\n" +
+                            "            f.predelete\n" +
+                            "    FROM\n" +
+                            "        file_list f\n" +
+                            "    JOIN user u\n" +
+                            "    WHERE\n" +
+                            "        f.owner_id = u.userid\n" +
+                            "            AND f.owner_id = (SELECT \n" +
+                            "                userid\n" +
+                            "            FROM\n" +
+                            "                sessions\n" +
+                            "            WHERE\n" +
+                            "                sessionid = '"+sessionid+"') ) s\n" +
+                            "ORDER BY s.file_name ASC;";
             ResultSet rs = st.executeQuery(query);
             while(rs.next()){
                 file file1 = new file();

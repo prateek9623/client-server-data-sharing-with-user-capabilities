@@ -27,7 +27,7 @@ public class getFileList extends HttpServlet {
             response.setStatus(response.SC_ACCEPTED);
             List<file> filelist = new ArrayList<>();
             JSONArray filelistArray = new JSONArray();
-            if (connect.getfilelist(sessionid, filelist)) {
+            if (connect.mfgetfilelist(sessionid, filelist)) {
                 for (int i = 0; i < filelist.size(); i++) {
                     JSONObject obj = new JSONObject();
                     obj.put("file_id", filelist.get(i).getFile_id());

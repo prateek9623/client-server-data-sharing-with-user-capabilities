@@ -250,7 +250,7 @@ public class dbconnect {
                             "                sessions\n" +
                             "            WHERE\n" +
                             "                sessionid = 'asdasd') UNION ALL SELECT \n" +
-                            "        f.file_id,\n" +
+                            "            sh.id,\n" +
                             "            f.file_name,\n" +
                             "            f.file_size,\n" +
                             "            sh.shared_on,\n" +
@@ -280,7 +280,7 @@ public class dbconnect {
                             "                sessions\n" +
                             "            WHERE\n" +
                             "                sessionid = 'asdasd') UNION ALL (SELECT \n" +
-                            "        f.file_id,\n" +
+                            "        sh.id,\n" +
                             "            f.file_name,\n" +
                             "            f.file_size,\n" +
                             "            sh.shared_on,\n" +
@@ -378,28 +378,6 @@ public class dbconnect {
         return false;
     }
 
-    boolean removeshare(String sessionid, String fileid) {
-        try{
-            connect();
-            String query =  "DELETE FROM shared_file_list \n" +
-                            "WHERE\n" +
-                            "    file_id = '"+fileid+"'\n" +
-                            "    AND (shared_to_id = (SELECT \n" +
-                            "        userid\n" +
-                            "    FROM\n" +
-                            "        sessions\n" +
-                            "    \n" +
-                            "    WHERE\n" +
-                            "        sessionid = '"+sessionid+"'));";
-            PreparedStatement update = con.prepareStatement(query);
-            int i = update.executeUpdate();
-            return i>0;
-        } catch (SQLException ex) {
-            System.out.println("Couldnt remove file: "+ex);
-        }
-        return false;
-    }
-
     boolean updateFileDetails(String sessionid, String path, String name, String fileid, String filesize) {
         try{
             connect();
@@ -421,6 +399,35 @@ public class dbconnect {
             return i>0;
         } catch (SQLException ex) {
             System.out.println("Couldnt rename file: "+ex);
+        }
+        return false;
+    }
+
+    boolean unShare(String username, String shareid) {
+        try{
+            connect();
+            String query =  "DELETE FROM shared_file_list \n" +
+                            "WHERE\n" +
+                            "    id = '"+shareid+"'\n" +
+                            "    AND (shared_to_id = (SELECT \n" +
+                            "        userid\n" +
+                            "    FROM\n" +
+                            "        user\n" +
+                            "    \n" +
+                            "    WHERE\n" +
+                            "        username = '"+username+"') OR "+
+                            "     sharer_id = (SELECT \n" +
+                            "        userid\n" +
+                            "    FROM\n" +
+                            "        user\n" +
+                            "    \n" +
+                            "    WHERE\n" +
+                            "        username = '"+username+"'));";
+            PreparedStatement update = con.prepareStatement(query);
+            int i = update.executeUpdate();
+            return i>0;
+        } catch (SQLException ex) {
+            System.out.println("Couldnt remove file: "+ex);
         }
         return false;
     }

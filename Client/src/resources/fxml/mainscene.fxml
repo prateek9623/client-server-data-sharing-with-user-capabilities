@@ -1,0 +1,606 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXCheckBox?>
+<?import com.jfoenix.controls.JFXDialog?>
+<?import com.jfoenix.controls.JFXDialogLayout?>
+<?import com.jfoenix.controls.JFXHamburger?>
+<?import com.jfoenix.controls.JFXPasswordField?>
+<?import com.jfoenix.controls.JFXRippler?>
+<?import com.jfoenix.controls.JFXTextArea?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import com.jfoenix.controls.JFXToolbar?>
+<?import com.jfoenix.controls.JFXTreeTableColumn?>
+<?import com.jfoenix.controls.JFXTreeTableView?>
+<?import com.jfoenix.validation.RequiredFieldValidator?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.effect.Glow?>
+<?import javafx.scene.effect.InnerShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane fx:id="rootpane" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" styleClass="background" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.MainsceneController">
+    <children>
+        <BorderPane prefHeight="200.0" prefWidth="200.0">
+            <top>
+                <JFXToolbar BorderPane.alignment="CENTER">
+                    <right>
+                        <JFXButton fx:id="avatar" alignment="CENTER_RIGHT" buttonType="RAISED" contentDisplay="RIGHT" ripplerFill="RED" text="User" textAlignment="CENTER" BorderPane.alignment="CENTER">
+                            <graphic>
+                                <ImageView fitHeight="50.0" fitWidth="50.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@../User_64.png" />
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                        </JFXButton>
+                    </right>
+                    <center>
+                        <AnchorPane prefHeight="48.0" prefWidth="1110.0" BorderPane.alignment="CENTER">
+                            <children>
+                                <HBox fx:id="uploaddownload" spacing="10.0" AnchorPane.rightAnchor="80.0">
+                                    <padding>
+                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                    </padding>
+                                    <children>
+                                        <JFXButton contentDisplay="GRAPHIC_ONLY" onAction="#refresh" prefHeight="63.0" prefWidth="63.0" text="Refresh">
+                                            <graphic>
+                                                <ImageView fitHeight="43.0" fitWidth="44.0" pickOnBounds="true" preserveRatio="true">
+                                                    <image>
+                                                        <Image url="@../Refresh_32.png" />
+                                                    </image>
+                                                </ImageView>
+                                            </graphic>
+                                        </JFXButton>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </AnchorPane>
+                    </center>
+                    <left>
+                        <JFXHamburger fx:id="slider_button" onMousePressed="#sliderButtonPressed">         
+                            <padding>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                            </padding>
+                        </JFXHamburger>
+
+                    </left>
+                </JFXToolbar>
+            </top>
+            <center>
+                <SplitPane fx:id="menudrawer" dividerPositions="0.001564945226917058" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="720.0" style="-fx-background-color: transparent;" BorderPane.alignment="CENTER">
+                    <items>
+                        <Pane fx:id="optionpane" maxHeight="1.7976931348623157E308" maxWidth="0.0" minHeight="-Infinity" minWidth="0.0" prefWidth="240.0" style="-fx-background-color: transparent;">
+                            <children>
+                                <VBox fx:id="optionpane1" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" spacing="20.0" visible="false">
+                                    <children>
+                                        <JFXButton fx:id="uploadButton" onAction="#uploadButtonAction" styleClass="button-raised" text="New upload" />
+                                        <JFXButton fx:id="myFiles" styleClass="button-raised" text="My Files" />
+                                        <JFXButton fx:id="sharedWithMe" styleClass="button-raised" text="Shared with me" />
+                                        <JFXButton fx:id="shareHistoryButton" styleClass="button-raised" text="Recent shared" />
+                                        <JFXButton fx:id="binbutton" styleClass="button-raised" text="Recycle bin" />
+                                    </children>
+                                    <padding>
+                                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                                    </padding>
+                                </VBox>
+                            </children>
+                        </Pane>
+                        <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                            <children>
+                                <StackPane fx:id="panestack" prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+                                    <padding>
+                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                    </padding>
+                                    <children>
+                                        <SplitPane fx:id="recycleview" dividerPositions="0.5" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: transparent;">
+                                            <items>
+                                                <AnchorPane>
+                                                    <children>
+                                                        <ScrollPane fitToHeight="true" fitToWidth="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                            <content>
+                                                                <FlowPane fx:id="binpane" hgap="10.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vgap="10.0">
+                                                                    <padding>
+                                                                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                                                                    </padding>
+                                                                </FlowPane>
+                                                            </content>
+                                                        </ScrollPane>
+                                                    </children>
+                                                </AnchorPane>
+                                                <BorderPane fx:id="binproppane" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" prefWidth="300.0" style="-fx-background-color: white;">
+                                                    <center>
+                                                        <VBox>
+                                                            <children>
+                                                                <GridPane>
+                                                                    <columnConstraints>
+                                                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="140.0" minWidth="10.0" prefWidth="72.0" />
+                                                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="155.0" minWidth="10.0" prefWidth="128.0" />
+                                                                    </columnConstraints>
+                                                                    <rowConstraints>
+                                                                        <RowConstraints maxHeight="100.0" minHeight="10.0" prefHeight="89.0" vgrow="SOMETIMES" />
+                                                                        <RowConstraints maxHeight="50.0" minHeight="10.0" prefHeight="42.0" vgrow="SOMETIMES" />
+                                                                        <RowConstraints maxHeight="50.0" minHeight="10.0" prefHeight="42.0" vgrow="SOMETIMES" />
+                                                                        <RowConstraints maxHeight="50.0" minHeight="10.0" prefHeight="57.0" vgrow="SOMETIMES" />
+                                                                        <RowConstraints maxHeight="50.0" minHeight="10.0" prefHeight="53.0" vgrow="SOMETIMES" />
+                                                                    </rowConstraints>
+                                                                    <children>
+                                                                        <Label fx:id="binfilename" maxWidth="1.7976931348623157E308" styleClass="fileheading" underline="true" GridPane.columnSpan="2147483647" />
+                                                                        <Label maxWidth="1.7976931348623157E308" text="Size:" underline="true" GridPane.rowIndex="1" />
+                                                                        <Label maxWidth="1.7976931348623157E308" text="Owner:" underline="true" GridPane.rowIndex="3" />
+                                                                        <Label maxWidth="1.7976931348623157E308" style="-fx-padding: 0;" text="Stored on:" underline="true" GridPane.rowIndex="2" />
+                                                                        <Label maxWidth="1.7976931348623157E308" text="Shared:" underline="true" GridPane.rowIndex="4" />
+                                                                        <Label fx:id="binfsize" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                                        <Label fx:id="binstoredon" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                                        <Label fx:id="binowner" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                                                        <Label fx:id="binshared" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                                                    </children>
+                                                                </GridPane>
+                                                            </children>
+                                                            <effect>
+                                                                <Glow />
+                                                            </effect>
+                                                            <padding>
+                                                                <Insets bottom="50.0" left="25.0" right="25.0" top="50.0" />
+                                                            </padding>
+                                                        </VBox>
+                                                    </center>
+                                                </BorderPane>
+                                            </items>
+                                        </SplitPane>
+                                        <SplitPane fx:id="sharehistory" prefHeight="200.0" prefWidth="200.0">
+                                            <items>
+                                                <VBox alignment="CENTER" spacing="10.0">
+                                                    <children>
+                                                        <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="20.0">
+                                                            <padding>
+                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                                            </padding>
+                                                            <children>
+                                                                <MenuButton mnemonicParsing="false" text="Sort By">
+                                                                    <items>
+                                                                        <MenuItem fx:id="resetgroup" mnemonicParsing="false" text="..." />
+                                                                        <MenuItem fx:id="groupByFiles" mnemonicParsing="false" text="Files" />
+                                                                        <MenuItem fx:id="groupByUsers" mnemonicParsing="false" text="Users" />
+                                                                    </items>
+                                                                </MenuButton>
+                                                            </children>
+                                                        </HBox>
+                                                        <JFXTreeTableView fx:id="sharehistoryTreeTable" >
+                                                            <columns>
+                                                                <JFXTreeTableColumn fx:id="fileNameColumn" minWidth="350.0" prefWidth="350.0" resizable="false" text="File Name">
+                                                                </JFXTreeTableColumn>
+                                                                <JFXTreeTableColumn fx:id="fileSizeColumn" maxWidth="150" minWidth="200.0" prefWidth="150.0" resizable="false" text="File Size(bytes)">
+                                                                </JFXTreeTableColumn>
+                                                                <JFXTreeTableColumn fx:id="sharedToColumn" minWidth="300" resizable="false" text="Shared to">
+                                                                </JFXTreeTableColumn>
+                                                                <JFXTreeTableColumn fx:id="sharedOnColumn" minWidth="250" resizable="false" text="Shared on">
+                                                                </JFXTreeTableColumn>
+                                                            </columns>
+                                                        </JFXTreeTableView>
+                                                        <BorderPane>
+                                                            <left>
+                                                                <JFXTextField fx:id="searchFile" promptText="Search...." BorderPane.alignment="CENTER" />
+                                                            </left>
+                                                            <right>
+                                                                <JFXButton fx:id="unsharebutton" disable="true" onAction="#unshareButtonAction" styleClass="button-raised" text="Unshare" BorderPane.alignment="CENTER" />
+                                                            </right>
+                                                            <VBox.margin>
+                                                                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                                                            </VBox.margin>
+                                                        </BorderPane>
+                                                    </children>
+                                                </VBox>
+                                            </items>
+                                            <padding>
+                                                <Insets bottom="50.0" left="50.0" right="50.0" />
+                                            </padding>
+                                        </SplitPane>
+                                        <SplitPane fx:id="swmpane" dividerPositions="0.5" style="-fx-background-color: transparent;">
+                                            <items>
+                                                <AnchorPane>
+                                                    <children>
+                                                        <ScrollPane fitToHeight="true" fitToWidth="true" style="visibility: true; -fx-background-color: transparent;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                            <content>
+                                                                <FlowPane fx:id="sharedwithme" hgap="10.0" style="-fx-background-color: white; visibility: true;" vgap="10.0">
+                                                                    <effect>
+                                                                        <InnerShadow height="10.0" radius="4.5" width="10.0" />
+                                                                    </effect>
+                                                                    <padding>
+                                                                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                                                                    </padding>
+                                                                </FlowPane>
+                                                            </content>
+                                                        </ScrollPane>
+                                                    </children>
+                                                </AnchorPane>
+                                                <BorderPane fx:id="sfproppane" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="300.0" style="-fx-background-color: white;">
+                                                    <center>
+                                                        <VBox>
+                                                            <children>
+                                                                <GridPane>
+                                                                    <columnConstraints>
+                                                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="140.0" minWidth="10.0" prefWidth="72.0" />
+                                                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="155.0" minWidth="10.0" prefWidth="128.0" />
+                                                                    </columnConstraints>
+                                                                    <rowConstraints>
+                                                                        <RowConstraints maxHeight="100.0" minHeight="10.0" prefHeight="89.0" vgrow="SOMETIMES" />
+                                                                        <RowConstraints maxHeight="50.0" minHeight="10.0" prefHeight="42.0" vgrow="SOMETIMES" />
+                                                                        <RowConstraints maxHeight="50.0" minHeight="10.0" prefHeight="42.0" vgrow="SOMETIMES" />
+                                                                        <RowConstraints maxHeight="50.0" minHeight="10.0" prefHeight="57.0" vgrow="SOMETIMES" />
+                                                                    </rowConstraints>
+                                                                    <children>
+                                                                        <Label fx:id="sffilename" maxWidth="1.7976931348623157E308" styleClass="fileheading" underline="true" GridPane.columnSpan="2147483647" />
+                                                                        <Label maxWidth="1.7976931348623157E308" text="Size:" underline="true" GridPane.rowIndex="1" />
+                                                                        <Label maxWidth="1.7976931348623157E308" text="Shared by::" underline="true" GridPane.rowIndex="3" />
+                                                                        <Label maxWidth="1.7976931348623157E308" style="-fx-padding: 0;" text="Shared on:" underline="true" GridPane.rowIndex="2" />
+                                                                        <Label fx:id="sfsize" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                                        <Label fx:id="sfstoredon" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                                        <Label fx:id="sfowner" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                                                    </children>
+                                                                </GridPane>
+                                                            </children>
+                                                            <effect>
+                                                                <Glow />
+                                                            </effect>
+                                                            <padding>
+                                                                <Insets bottom="50.0" left="25.0" right="25.0" top="50.0" />
+                                                            </padding>
+                                                        </VBox>
+                                                    </center>
+                                                </BorderPane>
+                                            </items>
+                                        </SplitPane>
+                                        <SplitPane fx:id="mfpane" dividerPositions="0.5" style="-fx-background-color: transparent;">
+                                            <items>
+                                                <AnchorPane>
+                                                    <children>
+                                                        <ScrollPane fitToHeight="true" fitToWidth="true" style="visibility: true; -fx-background-color: transparent;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                            <content>
+                                                                <FlowPane fx:id="myfiles" hgap="10.0" style="-fx-background-color: white; visibility: true;" vgap="10.0">
+                                                                    <padding>
+                                                                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                                                                    </padding>
+                                                                    <effect>
+                                                                        <InnerShadow height="10.0" radius="4.5" width="10.0" />
+                                                                    </effect>
+                                                                </FlowPane>
+                                                            </content>
+                                                        </ScrollPane>
+                                                    </children>
+                                                </AnchorPane>
+                                                <BorderPane fx:id="mfproppane" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="300.0" style="-fx-background-color: white;">
+                                                    <center>
+                                                        <VBox>
+                                                            <children>
+                                                                <GridPane>
+                                                                    <columnConstraints>
+                                                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="140.0" minWidth="10.0" prefWidth="72.0" />
+                                                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="155.0" minWidth="10.0" prefWidth="128.0" />
+                                                                    </columnConstraints>
+                                                                    <rowConstraints>
+                                                                        <RowConstraints maxHeight="100.0" minHeight="10.0" prefHeight="89.0" vgrow="SOMETIMES" />
+                                                                        <RowConstraints maxHeight="50.0" minHeight="10.0" prefHeight="42.0" vgrow="SOMETIMES" />
+                                                                        <RowConstraints maxHeight="50.0" minHeight="10.0" prefHeight="42.0" vgrow="SOMETIMES" />
+                                                                        <RowConstraints maxHeight="50.0" minHeight="10.0" prefHeight="57.0" vgrow="SOMETIMES" />
+                                                                        <RowConstraints maxHeight="50.0" minHeight="10.0" prefHeight="53.0" vgrow="SOMETIMES" />
+                                                                    </rowConstraints>
+                                                                    <children>
+                                                                        <Label fx:id="mffilename" maxWidth="1.7976931348623157E308" style="-fx-font-size: 20; -fx-font-weight: bold;" underline="true" GridPane.columnSpan="2147483647" />
+                                                                        <Label maxWidth="1.7976931348623157E308" text="Size:" underline="true" GridPane.rowIndex="1" />
+                                                                        <Label maxWidth="1.7976931348623157E308" text="Owner:" underline="true" GridPane.rowIndex="3" />
+                                                                        <Label maxWidth="1.7976931348623157E308" style="-fx-padding: 0;" text="Stored on:" underline="true" GridPane.rowIndex="2" />
+                                                                        <Label maxWidth="1.7976931348623157E308" text="Shared with:" underline="true" GridPane.rowIndex="4" />
+                                                                        <Label fx:id="mfsize" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                                        <Label fx:id="mfstoredon" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                                        <Label fx:id="mfowner" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                                                        <Label fx:id="mfshared" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                                                    </children>
+                                                                </GridPane>
+                                                            </children>
+                                                            <effect>
+                                                                <Glow />
+                                                            </effect>
+                                                            <padding>
+                                                                <Insets bottom="50.0" left="25.0" right="25.0" top="50.0" />
+                                                            </padding>
+                                                        </VBox>
+                                                    </center>
+                                                </BorderPane>
+                                            </items>
+                                        </SplitPane>
+                                    </children>
+                                </StackPane>
+                            </children>
+                        </AnchorPane>
+                    </items>
+                </SplitPane>
+            </center>
+        </BorderPane>
+        <JFXDialog fx:id="logoutdialog">
+            <JFXDialogLayout>
+                <heading>
+                    <Label>Do you want to Logout?</Label>
+                </heading>
+                <body>
+                </body>
+                <actions>
+                    <JFXButton fx:id="logoutConfirmButton" styleClass="dialog-accept">Logout
+                    </JFXButton>
+                </actions>
+            </JFXDialogLayout>
+        </JFXDialog>
+        <JFXDialog fx:id="sharedialog">
+            <JFXDialogLayout>
+                <heading>
+                    <Label>Share with others</Label>
+                </heading>
+                <body>
+                    <VBox spacing="40.0">
+                        <children>
+                            <JFXTextField fx:id="receiverid" promptText="Enter receiver username">
+                                <validators>
+                                    <RequiredFieldValidator message="Input Required!">
+                                    </RequiredFieldValidator>
+                                </validators>
+                            </JFXTextField>
+                            <JFXPasswordField fx:id="sharerPassowrd" labelFloat="true" promptText="Your Password">
+                                <validators>
+                                    <RequiredFieldValidator message="Input Required!">
+                                    </RequiredFieldValidator>		
+                                </validators>
+                            </JFXPasswordField>
+                        </children>
+                    </VBox>
+                </body>
+                <actions>
+                    <JFXButton fx:id="shareconfirm" styleClass="dialog-accept">Share
+                    </JFXButton>
+                </actions>
+            </JFXDialogLayout>
+        </JFXDialog>
+        <JFXDialog fx:id="uploaddialog">
+            <JFXDialogLayout>
+                <heading>
+                    <Label>Upload new file</Label>
+                </heading>
+                <body>
+                    <VBox spacing="40.0">
+                        <children>
+                            <HBox spacing="20.0">
+                                <JFXTextArea fx:id="filelocation" maxHeight="300" maxWidth="400" promptText="File Location">
+                                    <validators>
+                                        <RequiredFieldValidator message="Input Required!">
+                                        </RequiredFieldValidator>
+                                    </validators> 
+                                </JFXTextArea>
+                                <JFXButton fx:id="chooseFile" styleClass="dialog-accept">
+                                    Browse
+                                </JFXButton>
+                            </HBox>
+                            <JFXCheckBox fx:id="checkEncrypt" styleClass="custom-jfx-check-box-all-colored" text="AES encrypt" />
+                            <JFXPasswordField fx:id="encryptpass" disable="true" promptText="Enter 128bit Key">
+                                <validators>
+                                    <RequiredFieldValidator message="Password must be of 16 characters.">
+                                    </RequiredFieldValidator>
+                                </validators>
+                            </JFXPasswordField>
+			
+                        </children>
+                    </VBox>
+                </body>
+                <actions>
+                    <JFXButton fx:id="uploadconfirm" styleClass="dialog-accept">Upload
+                    </JFXButton>
+                </actions>
+            </JFXDialogLayout>
+        </JFXDialog>
+        <JFXDialog fx:id="downloaddialog">
+            <JFXDialogLayout>
+                <heading>
+                    <Label>Download file</Label>
+                </heading>
+                <body>
+                    <VBox spacing="20.0">
+                        <children>
+                            <HBox spacing="10.0">
+                                <JFXTextField fx:id="downloc" promptText="Download location">
+                                    <validators>
+                                        <RequiredFieldValidator message="Choose download location">
+                                        </RequiredFieldValidator>
+                                    </validators>
+                                </JFXTextField>
+                                <JFXButton fx:id="downlocbrowse" styleClass="dialog-accept">
+                                    Browse
+                                </JFXButton>
+                            </HBox>
+                            <JFXPasswordField fx:id="decryptpass" promptText="Enter 128bit decryption Key">
+                                <validators>
+                                    <RequiredFieldValidator message="Password must be of 16 characters.">
+                                    </RequiredFieldValidator>
+                                </validators>
+                            </JFXPasswordField>
+                        </children>
+                    </VBox>
+                </body>
+                <actions>
+                    <HBox spacing="20">
+                        <JFXButton fx:id="downloadConfirmbutton" styleClass="dialog-accept">Download
+                        </JFXButton>
+                        <JFXButton fx:id="downloadcancel" styleClass="dialog-accept">Cancel
+                        </JFXButton>
+                    </HBox> 
+                </actions>
+            </JFXDialogLayout>
+        </JFXDialog>
+        <JFXDialog fx:id="deletedialog">
+            <JFXDialogLayout>
+                <heading>
+                    <Label>Delete file</Label>
+                </heading>
+                <body>
+                    <VBox spacing="20.0">
+                        <children>
+                            <Label fx:id="delefilename" />
+                            <JFXPasswordField fx:id="userpass" promptText="Enter your pass.">
+                                <validators>
+                                    <RequiredFieldValidator message="Password is required.">
+                                    </RequiredFieldValidator>
+                                </validators>
+                            </JFXPasswordField>
+                        </children>
+                    </VBox>
+                </body>
+                <actions>
+                    <HBox spacing="20">
+                        <JFXButton fx:id="deleteConfirmbutton" styleClass="dialog-accept">Delete
+                        </JFXButton>
+                    </HBox> 
+                </actions>
+            </JFXDialogLayout>
+        </JFXDialog>
+        <JFXDialog fx:id="renamedialog">
+            <JFXDialogLayout>
+                <heading>
+                    <Label>Rename file</Label>
+                </heading>
+                <body>
+                    <VBox spacing="20.0">
+                        <children>
+                            <Label fx:id="renamefilename" />
+                            <HBox>
+                                <JFXTextField fx:id="newfileName" promptText="Enter new file name.">
+                                    <validators>
+                                        <RequiredFieldValidator message="Input is required.">
+                                        </RequiredFieldValidator>
+                                    </validators>
+                                </JFXTextField>
+                                <Label fx:id="fileextension" />
+                            </HBox>
+                        </children>
+                    </VBox>
+                </body>
+                <actions>
+                    <HBox spacing="20">
+                        <JFXButton fx:id="renameConfirmbutton" styleClass="dialog-accept">Rename
+                        </JFXButton>
+                    </HBox> 
+                </actions>
+            </JFXDialogLayout>
+        </JFXDialog>
+        <JFXDialog fx:id="encryptdialog">
+            <JFXDialogLayout>
+                <heading>
+                    <Label>Encrypt file</Label>
+                </heading>
+                <body>
+                    <VBox spacing="20.0">
+                        <children>
+                            <HBox>
+                                <Label>Do you want to encrypt this file. </Label>
+                                <Label fx:id="encryptfilename" />
+                            </HBox>
+                            <JFXPasswordField fx:id="newEncryptPass" promptText="Enter new encrypt pass.">
+                                <validators>
+                                    <RequiredFieldValidator message="Password is required.">
+                                    </RequiredFieldValidator>
+                                </validators>
+                            </JFXPasswordField>
+                            <JFXPasswordField fx:id="userpass2" promptText="Enter your pass.">
+                                <validators>
+                                    <RequiredFieldValidator message="Password is required.">
+                                    </RequiredFieldValidator>
+                                </validators>
+                            </JFXPasswordField>
+                        </children>
+                    </VBox>
+                </body>
+                <actions>
+                    <HBox spacing="20">
+                        <JFXButton fx:id="encryptConfirmbutton" styleClass="dialog-accept">Encrypt
+                        </JFXButton>
+                    </HBox> 
+                </actions>
+            </JFXDialogLayout>
+        </JFXDialog>
+        <JFXDialog fx:id="decryptdialog">
+            <JFXDialogLayout>
+                <heading>
+                    <Label>Decrypt file</Label>
+                </heading>
+                <body>
+                    <VBox spacing="20.0">
+                        <children>
+                            <HBox>
+                                <Label>Do you want to decrypt file. </Label>
+                                <Label fx:id="decryptfilename" />
+                            </HBox>
+                            <JFXPasswordField fx:id="decryptPass" promptText="Enter decryption pass.">
+                                <validators>
+                                    <RequiredFieldValidator message="Password is required.">
+                                    </RequiredFieldValidator>
+                                </validators>
+                            </JFXPasswordField>
+                            <JFXPasswordField fx:id="userpass3" promptText="Enter your pass.">
+                                <validators>
+                                    <RequiredFieldValidator message="Password is required.">
+                                    </RequiredFieldValidator>
+                                </validators>
+                            </JFXPasswordField>
+                        </children>
+                    </VBox>
+                </body>
+                <actions>
+                    <HBox spacing="20">
+                        <JFXButton fx:id="decryptConfirmbutton" styleClass="dialog-accept">Decrypt
+                        </JFXButton>
+                    </HBox> 
+                </actions>
+            </JFXDialogLayout>
+        </JFXDialog>
+        <JFXDialog fx:id="unsharedialog">
+            <JFXDialogLayout>
+                <heading>
+                    <Label>Unshare file</Label>
+                </heading>
+                <body>
+                    <VBox spacing="20.0">
+                        <children>
+                            <HBox>
+                                <Label>Do you want to unshare file. </Label>
+                                <Label fx:id="unsharefilename" />
+                            </HBox>
+                            <JFXPasswordField fx:id="userpass4" promptText="Enter your pass.">
+                                <validators>
+                                    <RequiredFieldValidator message="Password is required.">
+                                    </RequiredFieldValidator>
+                                </validators>
+                            </JFXPasswordField>
+                        </children>
+                    </VBox>
+                </body>
+                <actions>
+                    <HBox spacing="20">
+                        <JFXButton fx:id="unshareConfirmbutton" styleClass="dialog-accept">Unshare
+                        </JFXButton>
+                    </HBox> 
+                </actions>
+            </JFXDialogLayout>
+        </JFXDialog>
+    </children>
+</StackPane>

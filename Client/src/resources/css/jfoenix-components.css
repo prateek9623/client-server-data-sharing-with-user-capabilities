@@ -1,7 +1,4 @@
-.root{
-	-fx-font-family: Roboto;	
-    src:"/resources/roboto/Roboto-Regular.ttf";
-}
+
 /* Burgers Demo */
 
 .jfx-hamburger{
@@ -15,9 +12,6 @@
 	-fx-background-color : #D63333;
 	-fx-background-radius : 5px;
 }
-
-
-/* Input Demo */
 
 .text-field {
     -fx-max-width: 300;
@@ -33,7 +27,19 @@
     -fx-max-width: 300;
 }
 
+.icons-badge .badge-pane {
+	-fx-background-color:#ff4081;
+	-fx-background-radius: 23;	
+	-fx-pref-width: 23;
+	-fx-pref-height: 23;	
+	-fx-alignment: center;
+}
 
+.icons-badge Label{
+	-fx-font-weight: BOLD;
+	-fx-font-size: 14.0px;
+	-fx-text-fill: WHITE;
+}
 
 .jfx-decorator {
 	-fx-decorator-color: RED;
@@ -112,13 +118,16 @@
     -fx-font-size: 14px;
 }
 
-
+.popupmenu VBox JFXButton{
+    -fx-max-width: 80;
+}
 .button-raised{
     /*-fx-padding: 0.7em 0.57em;*/
     -fx-font-size: 14px;
+    -fx-font-weight: BOLD;
     -jfx-button-type: RAISED;
     -fx-background-color: rgb(77,102,204);
-    -fx-pref-width: 200;
+    -fx-pref-width: 150;
     -fx-text-fill: WHITE;
 }
 	 

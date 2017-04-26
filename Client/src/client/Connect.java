@@ -9,11 +9,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -41,13 +38,14 @@ public class Connect {
     private final HttpClient httpclient = HttpClients.createDefault();
     private final CookieStore cookieStore = new BasicCookieStore();
     private final HttpContext httpContext = new BasicHttpContext();
-    private final HttpPost httpLogin = new HttpPost("http://localhost:8080/Server/login");
     private final HttpPost httpRegister = new HttpPost("http://localhost:8080/Server/register");
+    private final HttpPost httpLogin = new HttpPost("http://localhost:8080/Server/login");
+    private final HttpPost filelist = new HttpPost("http://localhost:8080/Server/getfilelist");
+    private final HttpPost httpLogout = new HttpPost("http://localhost:8080/Server/logout");
     private final HttpPost filedecrypt = new HttpPost("http://localhost:8080/Server/decrypt");
     private final HttpPost filedelete = new HttpPost("http://localhost:8080/Server/delete");
     private final HttpPost filedownload = new HttpPost("http://localhost:8080/Server/download");
     private final HttpPost fileencrypt = new HttpPost("http://localhost:8080/Server/encrypt");
-    private final HttpPost filelist = new HttpPost("http://localhost:8080/Server/getfilelist");
     private final HttpPost filepredel = new HttpPost("http://localhost:8080/Server/predelete");
     private final HttpPost fileremove = new HttpPost("http://localhost:8080/Server/remove");
     private final HttpPost filerename = new HttpPost("http://localhost:8080/Server/rename");
@@ -72,6 +70,11 @@ public class Connect {
         return httpContext;
     }
     private String sessionid;
+    private String username;
+
+    public String getSessionid() {
+        return sessionid;
+    }
 
     public int authorize(String user, String pass) {
         StringBuilder sb = new StringBuilder();
@@ -123,8 +126,65 @@ public class Connect {
                 return HttpStatus.SC_EXPECTATION_FAILED;
             }
         } catch (IOException ex) {
-            Logger.getLogger(Connect.class.getName()).log(Level.SEVERE, null, ex);
         }
         return HttpStatus.SC_FAILED_DEPENDENCY;
     }
+
+    public int updateSession() {
+        try {
+            HttpResponse response = httpclient.execute(sessionUpdate,httpContext);
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                StringBuilder sb = new  StringBuilder();
+                try (InputStream instream = entity.getContent()) {
+                        BufferedReader bReader = new BufferedReader(new InputStreamReader(instream));
+                        String line = null;
+                        while ((line = bReader.readLine()) != null) {
+                            sb.append(line);
+                        }
+                    }
+                    username = sb.toString();
+                return response.getStatusLine().getStatusCode();
+            } else {
+                return HttpStatus.SC_EXPECTATION_FAILED;
+            }
+        } catch (IOException ex) {
+        }
+        return HttpStatus.SC_FAILED_DEPENDENCY;
+    }
+
+    String getusername() {
+        return username;
+    }
+    public boolean logout(){
+        try {
+            if(httpclient.execute(httpLogout,httpContext).getEntity()!=null){
+                return true;
+            }
+        } catch (IOException ex) {
+            
+        }
+        return false;
+    }
+
+    int getFileList(StringBuilder sb) {
+        int x =808;
+        try {
+            HttpResponse response = httpclient.execute(filelist,httpContext);
+            HttpEntity entity = response.getEntity();
+            x = response.getStatusLine().getStatusCode();
+            if (x==HttpStatus.SC_ACCEPTED) {
+                try (InputStream instream = entity.getContent()) {
+                    BufferedReader bReader = new BufferedReader(new InputStreamReader(instream));
+                    String line = null;
+                    while ((line = bReader.readLine()) != null) {
+                        sb.append(line);
+                    }
+                }
+            }
+        } catch (IOException ex) {
+        }
+        return x;
+    }
+
 }

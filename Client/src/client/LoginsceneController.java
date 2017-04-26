@@ -11,8 +11,6 @@ import de.jensd.fx.fontawesome.Icon;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javafx.animation.FadeTransition;
@@ -33,13 +31,12 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import org.apache.http.HttpStatus;
 import org.controlsfx.control.Notifications;
 
 public class LoginsceneController implements Initializable {
-    private Connect connect = Connect.getInstance();
+    private final Connect connect = Connect.getInstance();
     @FXML
     private JFXTextField username;
     @FXML
@@ -54,7 +51,7 @@ public class LoginsceneController implements Initializable {
     private static final String USERNAME_PATTERN = "^[a-z0-9_-]{3,15}$";
     private boolean user_status = false;
     private boolean pass_status = false;
-    private FXMLLoader loader = new FXMLLoader(getClass().getResource("/resources/fxml/mainscene.fxml"));
+    private final FXMLLoader loader = new FXMLLoader(getClass().getResource("/resources/fxml/mainscene.fxml"));
     @FXML
     private JFXPasswordField pass;
     @FXML
@@ -416,45 +413,56 @@ public class LoginsceneController implements Initializable {
             pass.validate();
             if ((user_status && pass_status )|| true) {
                 int status = connect.authorize(username.getText().trim(), pass.getText().trim());
-                if (status == HttpStatus.SC_ACCEPTED) {
-                    Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("Login successfull.").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                    });
-                    Parent main = loader.load();
-                    Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                    stage.close();
-                    Stage newStage = new Stage();
-                    JFXDecorator decorator = new JFXDecorator(newStage, main);
-                    decorator.customMaximizeProperty().setValue(false);
-                    decorator.setCustomMaximize(true);
-                    Scene scene =new Scene(decorator);
-                    scene.getStylesheets().add(Client.class.getResource("/resources/css/jfoenix-fonts.css").toExternalForm());
-                    scene.getStylesheets().add(Client.class.getResource("/resources/css/jfoenix-design.css").toExternalForm());
-                    scene.getStylesheets().add(Client.class.getResource("/resources/css/jfoenix-main-demo.css").toExternalForm());
-                    newStage.setScene(scene);
-                    newStage.show();
-                    message.setVisible(false);
-                } else if (status == HttpStatus.SC_NON_AUTHORITATIVE_INFORMATION) {
-                    Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("Invalid Username.").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                    });
-                    message.setText("Invalid Username.");
-                    message.setVisible(true);
-                } else if (status == HttpStatus.SC_UNAUTHORIZED) {
-                    Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("Incorrect password.").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                    });
-                    message.setText("Invalid Password.");
-                    message.setVisible(true);
+                switch (status) {
+                    case HttpStatus.SC_ACCEPTED:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("Login successfull.").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                        }); 
+                        Parent main = loader.load();
+                        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                        stage.close();
+                        Stage newStage = new Stage();
+                        JFXDecorator decorator = new JFXDecorator(newStage, main);
+                        decorator.customMaximizeProperty().setValue(false);
+                        decorator.setCustomMaximize(true);
+                        Scene scene =new Scene(decorator);
+                        scene.getStylesheets().add(Client.class.getResource("/resources/css/jfoenix-fonts.css").toExternalForm());
+                        scene.getStylesheets().add(Client.class.getResource("/resources/css/jfoenix-design.css").toExternalForm());
+                        scene.getStylesheets().add(Client.class.getResource("/resources/css/jfoenix-main-demo.css").toExternalForm());
+                        scene.getStylesheets().add(Client.class.getResource("/resources/css/treetableview.css").toExternalForm());
+                        newStage.setScene(scene);
+                        newStage.show();
+                        message.setVisible(false);
+                        break;
+                    case HttpStatus.SC_NON_AUTHORITATIVE_INFORMATION:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("Invalid Username.").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                        }); message.setText("Invalid Username.");
+                        message.setVisible(true);
+                        break;
+                    case HttpStatus.SC_UNAUTHORIZED:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("Incorrect password.").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                        }); message.setText("Invalid Password.");
+                        message.setVisible(true);
+                        break;
+                    default:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("Check Connection").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                        });
+                        break;
                 }
             }
         } else {

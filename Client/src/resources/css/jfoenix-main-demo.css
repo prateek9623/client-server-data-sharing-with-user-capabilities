@@ -15,6 +15,9 @@
 	-fx-padding	: 14.0 0.0 -20.0 0.0;	
 	-fx-text-fill: rgba(0.0, 0.0, 0.0, 0.87);
 }
+.popupmenu VBox JFXButton{
+    -fx-max-width: 100;
+}
 .split-pane *.split-pane-divider {
     -fx-padding: 0 1 0 1;
     -fx-border-color:  transparent;

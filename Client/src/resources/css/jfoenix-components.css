@@ -121,7 +121,7 @@
 .popupmenu VBox JFXButton{
     -fx-max-width: 80;
 }
-.button-raised{
+	 .button-raised{
     /*-fx-padding: 0.7em 0.57em;*/
     -fx-font-size: 14px;
     -fx-font-weight: BOLD;
@@ -130,7 +130,7 @@
     -fx-pref-width: 150;
     -fx-text-fill: WHITE;
 }
-	 
+
 	 
 
 /* The main scrollbar **track** CSS class  */

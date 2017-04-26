@@ -97,18 +97,9 @@ public class MainsceneController implements Initializable {
 
     Connect connect = Connect.getInstance();
     private final CloseableHttpClient client = HttpClients.createDefault();
-    private final HttpClient httpclient = HttpClients.createDefault();
-    private final HttpPost filedecrypt = new HttpPost("http://localhost:8080/Server/decrypt");
-    private final HttpPost filedelete = new HttpPost("http://localhost:8080/Server/delete");
     private final HttpPost filedownload = new HttpPost("http://localhost:8080/Server/download");
-    private final HttpPost fileencrypt = new HttpPost("http://localhost:8080/Server/encrypt");
-    private final HttpPost filepredel = new HttpPost("http://localhost:8080/Server/predelete");
-    private final HttpPost fileremove = new HttpPost("http://localhost:8080/Server/remove");
-    private final HttpPost filerename = new HttpPost("http://localhost:8080/Server/rename");
-    private final HttpPost filerestore = new HttpPost("http://localhost:8080/Server/restore");
-    private final HttpPost fileshare = new HttpPost("http://localhost:8080/Server/share");
     private final HttpPost fileupload = new HttpPost("http://localhost:8080/Server/upload");
-
+    private final HttpClient httpclient = HttpClients.createDefault();
     private HamburgerBackArrowBasicTransition burgerTask;
     private SplitPane toppane;
     @FXML
@@ -715,13 +706,11 @@ public class MainsceneController implements Initializable {
                 builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
                 builder.addPart("file", fileBody);
                 if (checkEncrypt.isSelected()) {
-
                     builder.addPart("checkEncrypt", new StringBody("true", ContentType.DEFAULT_TEXT));
                     builder.addPart("pass", new StringBody(encryptpass.getText(), ContentType.DEFAULT_TEXT));
                 } else {
                     builder.addPart("checkEncrypt", new StringBody("false", ContentType.DEFAULT_TEXT));
                 }
-                builder.addPart("sessionid", new StringBody(sessionid, ContentType.DEFAULT_TEXT));
                 HttpEntity entity = builder.build();
                 updateMessage(file.getName());
                 ProgressListener listener = (float percentage) -> {
@@ -729,9 +718,9 @@ public class MainsceneController implements Initializable {
                 };
                 fileupload.setEntity(new ProgressEntityWrapper(entity, listener));
                 try {
-                    CloseableHttpResponse response = client.execute(fileupload);
+                    CloseableHttpResponse response = client.execute(fileupload, connect.getHttpContext());
                     HttpEntity responseentity = response.getEntity();
-                    if (entity != null) {
+                    if (responseentity != null) {
                         switch (response.getStatusLine().getStatusCode()) {
                             case HttpStatus.SC_ACCEPTED:
                                 Platform.runLater(() -> {
@@ -851,14 +840,13 @@ public class MainsceneController implements Initializable {
                 updateMessage("Finding file . . .");
                 updateProgress(0, 100);
                 List<NameValuePair> params = new ArrayList<NameValuePair>(1);
-                params.add(new BasicNameValuePair("sessionid", sessionid));
                 params.add(new BasicNameValuePair("fileid", fileList.get(i).getFile_id()));
                 if (fileList.get(i).getFile_name().endsWith(".aes")) {
                     params.add(new BasicNameValuePair("pass", decryptpass.getText()));
                 }
                 try {
                     filedownload.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-                    HttpResponse response = httpclient.execute(filedownload);
+                    HttpResponse response = httpclient.execute(filedownload, connect.getHttpContext());
                     HttpEntity entity = response.getEntity();
                     if (entity != null) {
                         switch (response.getStatusLine().getStatusCode()) {
@@ -933,7 +921,42 @@ public class MainsceneController implements Initializable {
         });
         shareconfirm.setOnAction(e -> {
             if (!(receiverid.getText().trim().equals("") || sharerPassowrd.getText().trim().equals("") || receiverid.getText().equals(null) || sharerPassowrd.getText().equals(null))) {
-                sharefunc(receiverid.getText(), sharerPassowrd.getText(), fileList.get((int) mfbuttonGroup.getSelectedToggle().getUserData()).getFile_id());
+                int status = connect.shareFile(receiverid.getText(), sharerPassowrd.getText(), fileList.get((int) mfbuttonGroup.getSelectedToggle().getUserData()).getFile_id());
+                switch (status) {
+                    case HttpStatus.SC_ACCEPTED:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("File shared").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                            paintcontains();
+                        });
+                        break;
+                    case HttpStatus.SC_FORBIDDEN:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("Entered password is wrong").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                        });
+                        break;
+                    case HttpStatus.SC_CONFLICT:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("Person you want to share doesnt exist!").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                        });
+                        break;
+                    default:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("Check Connection").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                        });
+                        break;
+                }
                 sharedialog.close();
             } else {
                 if (receiverid.getText().trim().equals("") || receiverid.getText().equals(null)) {
@@ -949,111 +972,6 @@ public class MainsceneController implements Initializable {
         sharedialog.maxWidth(200);
         sharedialog.show(rootpane);
 
-    }
-//done
-
-    private void sharefunc(String sharedtoid, String sharerpassword, String fileid) {
-        List<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("sessionid", sessionid));
-        params.add(new BasicNameValuePair("sharedtoid", sharedtoid));
-        params.add(new BasicNameValuePair("sharerpassword", sharerpassword));
-        params.add(new BasicNameValuePair("fileid", fileid));
-        try {
-            fileshare.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-            HttpResponse response = httpclient.execute(fileshare);
-            HttpEntity entity = response.getEntity();
-            if (entity != null) {
-                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_ACCEPTED) {
-                    Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("File shared").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                        paintcontains();
-                    });
-                } else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN) {
-                    Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("Entered password is wrong").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                    });
-                } else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_CONFLICT) {
-                    Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("Person you want to share doesnt exist!").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                    });
-                } else {
-                    Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("File not shared").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                    });
-                }
-            } else {
-                Platform.runLater(() -> {
-                    Notifications.create()
-                            .title("Information")
-                            .text("Check Connection").hideAfter(Duration.seconds(2))
-                            .showInformation();
-                });
-            }
-        } catch (Exception ex) {
-        }
-    }
-//done
-//remone share
-
-    private void unshareAction(ActionEvent e, String id, String password) {
-        List<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("sessionid", sessionid));
-        params.add(new BasicNameValuePair("fileid", id));
-        params.add(new BasicNameValuePair("password", password));
-        try {
-            fileremove.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-            HttpResponse response = httpclient.execute(fileremove);
-            HttpEntity entity = response.getEntity();
-            if (entity != null) {
-                switch (response.getStatusLine().getStatusCode()) {
-                    case HttpStatus.SC_ACCEPTED:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("File Unshared.").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                            paintcontains();
-                        });
-                        break;
-                    case HttpStatus.SC_BAD_REQUEST:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("File not found.").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                        });
-                        break;
-                    default:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("Invalid request").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                        });
-                        break;
-                }
-            } else {
-                Platform.runLater(() -> {
-                    Notifications.create()
-                            .title("Information")
-                            .text("Check Connection").hideAfter(Duration.seconds(2))
-                            .showInformation();
-                });
-            }
-        } catch (Exception ex) {
-        }
     }
 //done
 
@@ -1075,58 +993,40 @@ public class MainsceneController implements Initializable {
             if (newname.equals("") || newname.equals(null)) {
                 newfileName.validate();
             } else {
-                renameAction(newname, i);
+                int status = connect.fileRename(newname, fileList.get(i).getFile_id());
+                switch (status) {
+                    case HttpStatus.SC_ACCEPTED:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("File renamed.").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                            paintcontains();
+                        });
+                        break;
+                    case HttpStatus.SC_CONFLICT:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("File with this name already exist.").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                            paintcontains();
+                        });
+                        break;
+                    default:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("Check Connection").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                        });
+                        break;
+                }
                 renamedialog.close();
             }
         });
     }
 //done    
-
-    private void renameAction(String newname, int i) {
-        List<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("sessionid", sessionid));
-        params.add(new BasicNameValuePair("fileid", fileList.get(i).getFile_id()));
-        params.add(new BasicNameValuePair("newname", newname));
-        try {
-            filerename.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-            HttpResponse response = httpclient.execute(filerename);
-            HttpEntity entity = response.getEntity();
-            if (entity != null) {
-                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_ACCEPTED) {
-                    Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("File renamed.").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                        paintcontains();
-                    });
-                } else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_CONFLICT) {
-                    Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("File with this name already exist.").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                        paintcontains();
-                    });
-                } else {
-                    Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("File not renamed.").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                    });
-                }
-            } else {
-                Platform.runLater(() -> {
-                    Notifications.create()
-                            .title("Information")
-                            .text("Check Connection").hideAfter(Duration.seconds(2))
-                            .showInformation();
-                });
-            }
-        } catch (Exception ex) {
-        }
-    }
 
     private void encrypt(ActionEvent e) {
         encryptdialog.setTransitionType(JFXDialog.DialogTransition.CENTER);
@@ -1149,7 +1049,41 @@ public class MainsceneController implements Initializable {
             String encryptpass = newEncryptPass.getText().trim();
             String pass = userpass2.getText().trim();
             if (!encryptpass.equals("") && !pass.equals("") && encryptpass.length() == 16) {
-                encryptAction(encryptpass, i, pass);
+                switch (connect.fileEncrypt(fileList.get(i).getFile_id(), encryptpass, pass)) {
+                    case HttpStatus.SC_ACCEPTED:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("File Encrypted successfully.").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                            paintcontains();
+                        });
+                        break;
+                    case HttpStatus.SC_CONFLICT:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("File is already encrypted").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                        });
+                        break;
+                    case HttpStatus.SC_FORBIDDEN:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("Check Connection").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                        });
+                        break;
+                    default:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("File Encryption unsucessful.").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                        });
+                        break;
+                }
                 encryptdialog.close();
             } else {
                 if (pass.equals("") || pass.equals(null)) {
@@ -1161,53 +1095,7 @@ public class MainsceneController implements Initializable {
             }
         });
     }
-
-    private void encryptAction(String encryptpass, int i, String pass) {
-        List<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("sessionid", sessionid));
-        params.add(new BasicNameValuePair("fileid", fileList.get(i).getFile_id()));
-        params.add(new BasicNameValuePair("newencryptpass", encryptpass));
-        params.add(new BasicNameValuePair("userpass", pass));
-        try {
-            fileencrypt.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-            HttpResponse response = httpclient.execute(fileencrypt);
-            HttpEntity entity = response.getEntity();
-            if (entity != null) {
-                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_ACCEPTED) {
-                    Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("File Encrypted successfully.").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                        paintcontains();
-                    });
-                } else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_CONFLICT) {
-                    Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("File is already encrypted").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                        paintcontains();
-                    });
-                } else {
-                    Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("File Encryption unsucessful.").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                    });
-                }
-            } else {
-                Platform.runLater(() -> {
-                    Notifications.create()
-                            .title("Information")
-                            .text("Check Connection").hideAfter(Duration.seconds(2))
-                            .showInformation();
-                });
-            }
-        } catch (Exception ex) {
-        }
-    }
+//done
 
     private void decrypt(ActionEvent e) {
         decryptdialog.setTransitionType(JFXDialog.DialogTransition.CENTER);
@@ -1230,7 +1118,44 @@ public class MainsceneController implements Initializable {
             String decryptpass1 = decryptPass.getText().trim();
             String pass = userpass3.getText().trim();
             if (!decryptpass1.equals("") && !pass.equals("") && decryptpass1.length() == 16) {
-                decryptAction(i, decryptpass1, pass);
+                int status = connect.fileDecrypt(fileList.get(i).getFile_id(), decryptpass1, pass);
+                switch (status) {
+                    case HttpStatus.SC_ACCEPTED:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("File encryption removed.").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                            paintcontains();
+                        });
+                        break;
+                    case HttpStatus.SC_CONFLICT:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("File is already decrypted.").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                            paintcontains();
+                        });
+                        break;
+                    case 808:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("Check Connection").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                            paintcontains();
+                        });
+                        break;
+                    default:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("File decryption failed.").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                        });
+                        break;
+                }
                 decryptdialog.close();
             } else {
                 if (decryptpass1.length() != 16) {
@@ -1242,129 +1167,63 @@ public class MainsceneController implements Initializable {
             }
         });
     }
-
-    private void decryptAction(int i, String decryptpass, String pass) {
-        List<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("sessionid", sessionid));
-        params.add(new BasicNameValuePair("fileid", fileList.get(i).getFile_id()));
-        params.add(new BasicNameValuePair("oldpass", decryptpass));
-        params.add(new BasicNameValuePair("userpass", pass));
-        try {
-            filedecrypt.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-            HttpResponse response = httpclient.execute(filedecrypt);
-            HttpEntity entity = response.getEntity();
-            if (entity != null) {
-                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_ACCEPTED) {
-                    Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("File encryption removed.").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                        paintcontains();
-                    });
-                } else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_CONFLICT) {
-                    Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("File is already decrypted.").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                        paintcontains();
-                    });
-                } else {
-                    Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("File decryption failed.").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                    });
-                }
-            } else {
-                Platform.runLater(() -> {
-                    Notifications.create()
-                            .title("Information")
-                            .text("Check Connection").hideAfter(Duration.seconds(2))
-                            .showInformation();
-                });
-            }
-        } catch (IOException ex) {
-        }
-    }
 //done
-//predelete
 
     private void delete(ActionEvent e) {
-        List<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("sessionid", sessionid));
-        params.add(new BasicNameValuePair("fileid", fileList.get((int) mfbuttonGroup.getSelectedToggle().getUserData()).getFile_id()));
-        try {
-            filepredel.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-            HttpResponse response = httpclient.execute(filepredel);
-            HttpEntity entity = response.getEntity();
-            if (entity != null) {
-                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_ACCEPTED) {
-                    Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("File moved to recycle bin.").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                        paintcontains();
-                    });
-                } else {
-                    Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("File not removed.").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                    });
-                }
-            } else {
+        int status = connect.filePredelete(fileList.get((int) mfbuttonGroup.getSelectedToggle().getUserData()).getFile_id());
+        switch (status) {
+            case HttpStatus.SC_ACCEPTED:
                 Platform.runLater(() -> {
                     Notifications.create()
                             .title("Information")
-                            .text("Check Connection").hideAfter(Duration.seconds(2))
+                            .text("File moved to recycle bin.").hideAfter(Duration.seconds(2))
+                            .showInformation();
+                    paintcontains();
+                });
+                break;
+            default:
+                Platform.runLater(() -> {
+                    Notifications.create()
+                            .title("Information")
+                            .text("check Connection.").hideAfter(Duration.seconds(2))
                             .showInformation();
                 });
-            }
-        } catch (Exception ex) {
+                break;
         }
     }
 //done
 
     private void restore(ActionEvent e) {
-        List<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("sessionid", sessionid));
-        params.add(new BasicNameValuePair("fileid", fileList.get((int) binbuttonGroup.getSelectedToggle().getUserData()).getFile_id()));
-        try {
-            filerestore.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-            HttpResponse response = httpclient.execute(filerestore);
-            HttpEntity entity = response.getEntity();
-            if (entity != null) {
-                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_ACCEPTED) {
-                    Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("File restored.").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                        paintcontains();
-                    });
-                } else {
-                    Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("File not restored.").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                    });
-                }
-            } else {
+        int status = connect.restoreFile(fileList.get((int) binbuttonGroup.getSelectedToggle().getUserData()).getFile_id());
+        switch (status) {
+            case HttpStatus.SC_ACCEPTED:
+                Platform.runLater(() -> {
+                    Notifications.create()
+                            .title("Information")
+                            .text("File restored.").hideAfter(Duration.seconds(2))
+                            .showInformation();
+                    paintcontains();
+                });
+                break;
+            case HttpStatus.SC_FORBIDDEN:
+                Platform.runLater(() -> {
+                    Notifications.create()
+                            .title("Information")
+                            .text("File not restored.").hideAfter(Duration.seconds(2))
+                            .showInformation();
+                    paintcontains();
+                });
+                break;
+            default:
                 Platform.runLater(() -> {
                     Notifications.create()
                             .title("Information")
                             .text("Check Connection").hideAfter(Duration.seconds(2))
                             .showInformation();
                 });
-            }
-        } catch (Exception ex) {
+                break;
         }
+
     }
 //done
 
@@ -1385,51 +1244,38 @@ public class MainsceneController implements Initializable {
             if (userpass.getText().trim().equals("") || userpass.getText().equals(null)) {
                 userpass.validate();
             } else {
-                permadeleteConfirm(fileList.get(userdata).getFile_id(), userpass.getText().trim());
+                switch (connect.filePermadelete(fileList.get(userdata).getFile_id(), userpass.getText().trim())) {
+                    case HttpStatus.SC_ACCEPTED:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("File deleted").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                        });
+                        paintcontains();
+                        break;
+                    case 808:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("Check Connection").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                        });
+                        break;
+                    default:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("File not deleted").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                        });
+                        break;
+                }
                 deletedialog.close();
             }
         });
     }
-//done
-
-    private void permadeleteConfirm(String fileid, String userpass) {
-        List<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("sessionid", sessionid));
-        params.add(new BasicNameValuePair("deletefile", fileid));
-        params.add(new BasicNameValuePair("password", userpass));
-        try {
-            filedelete.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-            HttpResponse response = httpclient.execute(filedelete);
-            HttpEntity entity = response.getEntity();
-            if (entity != null) {
-                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_ACCEPTED) {
-                    Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("File deleted").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                    });
-                    paintcontains();
-                } else {
-                    Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("File not deleted").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                    });
-                }
-            } else {
-                Platform.runLater(() -> {
-                    Notifications.create()
-                            .title("Information")
-                            .text("Check Connection").hideAfter(Duration.seconds(2))
-                            .showInformation();
-                });
-            }
-        } catch (UnsupportedEncodingException ex) {
-        } catch (IOException ex) {
-        }
-    }
+//dones
 
     @FXML
     private void refresh(ActionEvent event) {
@@ -1518,7 +1364,7 @@ public class MainsceneController implements Initializable {
         remButton.setOnAction(e -> {
             sfpopup.hide();
             file f = fileList.get((int) sfbuttonGroup.getSelectedToggle().getUserData());
-            unshare(e, f.getFile_id(), f.getFile_name());
+            unshare(f.getFile_id(), f.getFile_name());
         });
         renameButton1.setOnAction(e -> {
             mfpopup.hide();
@@ -1552,10 +1398,6 @@ public class MainsceneController implements Initializable {
         VBox mfepopuplist = new VBox(decButton, downloadButton2, shareButton2, renameButton2, delButton2);
         VBox sfpopuplist = new VBox(downloadButton3, remButton);
         VBox binpopuplist = new VBox(restoreButton, delButton3);
-        mfpopuplist.setMaxWidth(80);
-        mfepopuplist.setMaxWidth(80);
-        sfpopuplist.setMaxWidth(80);
-        binpopuplist.setMaxWidth(160);
         mfpopup = new JFXPopup(mfpopuplist);
         mfepopup = new JFXPopup(mfepopuplist);
         sfpopup = new JFXPopup(sfpopuplist);
@@ -1563,12 +1405,7 @@ public class MainsceneController implements Initializable {
         mfpopup.getStyleClass().add("popupmenu");
         mfepopup.getStyleClass().add("popupmenu");
         sfpopup.getStyleClass().add("popupmenu");
-//        binpopup.getStyleClass().add("popupmenu");
-        restoreButton.setPrefWidth(100);
-        mfpopup.setMaxWidth(80);
-        mfepopup.setMaxWidth(80);
-        sfpopup.setMaxWidth(80);
-        binpopup.setMaxWidth(160);
+        binpopup.getStyleClass().add("popupmenu");
     }
 
     private void paintShareHistoryTabel() {
@@ -1600,18 +1437,7 @@ public class MainsceneController implements Initializable {
                 return sharedOnColumn.getComputedValue(param);
             }
         });
-        try {
-            sharehistoryTreeTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                if (!newValue.equals(oldValue)) {
-                    unsharebutton.setDisable(false);
-                } else {
-                    unsharebutton.setDisable(true);
-                }
-
-            });
-        } catch (Exception e) {
-
-        }
+        unsharebutton.setDisable(false);
         sharehistoryTreeTable.setRoot(new RecursiveTreeItem<sharedToFileList>(sharedFileList, RecursiveTreeObject::getChildren));
         sharehistoryTreeTable.setShowRoot(false);
         sharehistoryTreeTable.setEditable(false);
@@ -1638,7 +1464,7 @@ public class MainsceneController implements Initializable {
         });
     }
 
-    private void unshare(ActionEvent e, String id, String file_name) {
+    private void unshare(String id, String file_name) {
         unsharedialog.setTransitionType(JFXDialog.DialogTransition.CENTER);
         unsharedialog.show(rootpane);
         unsharefilename.setText(file_name);
@@ -1653,7 +1479,33 @@ public class MainsceneController implements Initializable {
             if (pass.equals("") || pass.equals(null)) {
                 userpass4.validate();
             } else {
-                unshareAction(e, id, pass);
+                switch (connect.unshareFile(id, pass)) {
+                    case HttpStatus.SC_ACCEPTED:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("File Unshared.").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                            paintcontains();
+                        });
+                        break;
+                    case HttpStatus.SC_BAD_REQUEST:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("File not found.").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                        });
+                        break;
+                    default:
+                        Platform.runLater(() -> {
+                            Notifications.create()
+                                    .title("Information")
+                                    .text("Check Connection").hideAfter(Duration.seconds(2))
+                                    .showInformation();
+                        });
+                        break;
+                }
                 unsharedialog.close();
             }
         });
@@ -1700,7 +1552,7 @@ public class MainsceneController implements Initializable {
 
         @Override
         public void writeTo(OutputStream outstream) throws IOException {
-            super.writeTo(new CountingOutputStream(outstream,listener, getContentLength()));
+            super.writeTo(new CountingOutputStream(outstream, listener, getContentLength()));
         }
     }
 
@@ -1776,7 +1628,7 @@ public class MainsceneController implements Initializable {
     @FXML
     void unshareButtonAction(ActionEvent event) {
         sharedToFileList file = sharehistoryTreeTable.getSelectionModel().getSelectedItem().getValue();
-        unshare(event, file.getFile_id(), file.getFile_name().get());
+        unshare(file.getFile_id(), file.getFile_name().get());
     }
 
     void passSessionId(String sessionID) {

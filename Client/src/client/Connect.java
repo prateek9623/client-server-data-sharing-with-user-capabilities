@@ -11,6 +11,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -44,16 +46,14 @@ public class Connect {
     private final HttpPost httpLogout = new HttpPost("http://localhost:8080/Server/logout");
     private final HttpPost filedecrypt = new HttpPost("http://localhost:8080/Server/decrypt");
     private final HttpPost filedelete = new HttpPost("http://localhost:8080/Server/delete");
-    private final HttpPost filedownload = new HttpPost("http://localhost:8080/Server/download");
     private final HttpPost fileencrypt = new HttpPost("http://localhost:8080/Server/encrypt");
     private final HttpPost filepredel = new HttpPost("http://localhost:8080/Server/predelete");
     private final HttpPost fileremove = new HttpPost("http://localhost:8080/Server/remove");
     private final HttpPost filerename = new HttpPost("http://localhost:8080/Server/rename");
     private final HttpPost filerestore = new HttpPost("http://localhost:8080/Server/restore");
     private final HttpPost fileshare = new HttpPost("http://localhost:8080/Server/share");
-    private final HttpPost fileupload = new HttpPost("http://localhost:8080/Server/upload");
     private final HttpPost sessionUpdate = new HttpPost("http://localhost:8080/Server/updatesession");
-        
+
     private Connect() {
         httpContext.setAttribute(HttpClientContext.COOKIE_STORE, cookieStore);
     }
@@ -105,6 +105,7 @@ public class Connect {
         }
 
     }
+
     public int register(String fname, String lname, String email, String phone, String dob, String gender, String user, String pass) {
         StringBuilder sb = new StringBuilder();
         try {
@@ -118,7 +119,7 @@ public class Connect {
             params.add(new BasicNameValuePair("gender", gender));
             params.add(new BasicNameValuePair("dob", dob));
             httpRegister.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-            HttpResponse response = httpclient.execute(httpRegister,httpContext);
+            HttpResponse response = httpclient.execute(httpRegister, httpContext);
             HttpEntity entity = response.getEntity();
             if (entity != null) {
                 return response.getStatusLine().getStatusCode();
@@ -132,18 +133,18 @@ public class Connect {
 
     public int updateSession() {
         try {
-            HttpResponse response = httpclient.execute(sessionUpdate,httpContext);
+            HttpResponse response = httpclient.execute(sessionUpdate, httpContext);
             HttpEntity entity = response.getEntity();
             if (entity != null) {
-                StringBuilder sb = new  StringBuilder();
+                StringBuilder sb = new StringBuilder();
                 try (InputStream instream = entity.getContent()) {
-                        BufferedReader bReader = new BufferedReader(new InputStreamReader(instream));
-                        String line = null;
-                        while ((line = bReader.readLine()) != null) {
-                            sb.append(line);
-                        }
+                    BufferedReader bReader = new BufferedReader(new InputStreamReader(instream));
+                    String line = null;
+                    while ((line = bReader.readLine()) != null) {
+                        sb.append(line);
                     }
-                    username = sb.toString();
+                }
+                username = sb.toString();
                 return response.getStatusLine().getStatusCode();
             } else {
                 return HttpStatus.SC_EXPECTATION_FAILED;
@@ -156,24 +157,25 @@ public class Connect {
     String getusername() {
         return username;
     }
-    public boolean logout(){
+
+    public boolean logout() {
         try {
-            if(httpclient.execute(httpLogout,httpContext).getEntity()!=null){
+            if (httpclient.execute(httpLogout, httpContext).getEntity() != null) {
                 return true;
             }
         } catch (IOException ex) {
-            
+
         }
         return false;
     }
 
     int getFileList(StringBuilder sb) {
-        int x =808;
+        int x = 808;
         try {
-            HttpResponse response = httpclient.execute(filelist,httpContext);
+            HttpResponse response = httpclient.execute(filelist, httpContext);
             HttpEntity entity = response.getEntity();
             x = response.getStatusLine().getStatusCode();
-            if (x==HttpStatus.SC_ACCEPTED) {
+            if (x == HttpStatus.SC_ACCEPTED) {
                 try (InputStream instream = entity.getContent()) {
                     BufferedReader bReader = new BufferedReader(new InputStreamReader(instream));
                     String line = null;
@@ -187,4 +189,142 @@ public class Connect {
         return x;
     }
 
+    int fileRename(String newname, String file_id) {
+        int status = 808;
+        List<NameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("fileid", file_id));
+        params.add(new BasicNameValuePair("newname", newname));
+        try {
+            filerename.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+            HttpResponse response = httpclient.execute(filerename, httpContext);
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                status = response.getStatusLine().getStatusCode();
+            }
+        } catch (Exception ex) {
+        }
+        return status;
+    }
+
+    int fileDecrypt(String file_id, String decryptpass, String pass) {
+        int status = 808;
+        List<NameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("fileid", file_id));
+        params.add(new BasicNameValuePair("oldpass", decryptpass));
+        params.add(new BasicNameValuePair("userpass", pass));
+        try {
+            filedecrypt.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+            HttpResponse response = httpclient.execute(filedecrypt, httpContext);
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                status = response.getStatusLine().getStatusCode();
+
+            }
+        } catch (IOException ex) {
+        }
+        return status;
+    }
+
+    int filePermadelete(String file_id, String userpass) {
+        int status = 808;
+        List<NameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("deletefile", file_id));
+        params.add(new BasicNameValuePair("password", userpass));
+        try {
+            filedelete.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+            HttpResponse response = httpclient.execute(filedelete, httpContext);
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                status = response.getStatusLine().getStatusCode();
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(Connect.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return status;
+    }
+
+    int fileEncrypt(String file_id, String encryptpass, String pass) {
+        int status = 808;
+        List<NameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("fileid", file_id));
+        params.add(new BasicNameValuePair("newencryptpass", encryptpass));
+        params.add(new BasicNameValuePair("userpass", pass));
+        try {
+            fileencrypt.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+            HttpResponse response = httpclient.execute(fileencrypt, httpContext);
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                status = response.getStatusLine().getStatusCode();
+            }
+        } catch (Exception ex) {
+        }
+        return status;
+    }
+
+    int filePredelete(String file_id) {
+        int status = 808;
+        List<NameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("fileid", file_id));
+        try {
+            filepredel.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+            HttpResponse response = httpclient.execute(filepredel, httpContext);
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                status = response.getStatusLine().getStatusCode();
+            }
+        } catch (Exception ex) {
+        }
+        return status;
+    }
+
+    int shareFile(String sharedtoid, String sharerpassword, String file_id) {
+        int status = 808;
+        List<NameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("sharedtoid", sharedtoid));
+        params.add(new BasicNameValuePair("sharerpassword", sharerpassword));
+        params.add(new BasicNameValuePair("fileid", file_id));
+        try {
+            fileshare.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+            HttpResponse response = httpclient.execute(fileshare, httpContext);
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                status = response.getStatusLine().getStatusCode();
+            }
+        } catch (Exception ex) {
+        }
+        return status;
+    }
+
+    int unshareFile(String id, String pass) {
+        int status = 808;
+        List<NameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("fileid", id));
+        params.add(new BasicNameValuePair("password", pass));
+        try {
+            fileremove.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+            HttpResponse response = httpclient.execute(fileremove, httpContext);
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                status = response.getStatusLine().getStatusCode();
+            }
+        } catch (Exception ex) {
+        }
+        return status;
+    }
+
+    int restoreFile(String file_id) {
+        int status = 808;
+        List<NameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("fileid",file_id));
+        try {
+            filerestore.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+            HttpResponse response = httpclient.execute(filerestore,httpContext);
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                status = response.getStatusLine().getStatusCode();
+            }
+        } catch (Exception ex) {
+        }
+        return status;
+    }
 }

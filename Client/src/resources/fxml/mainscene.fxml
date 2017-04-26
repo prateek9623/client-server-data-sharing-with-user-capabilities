@@ -18,6 +18,7 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.effect.Glow?>
 <?import javafx.scene.effect.InnerShadow?>
 <?import javafx.scene.image.Image?>
@@ -161,8 +162,11 @@
                                                     </center>
                                                 </BorderPane>
                                             </items>
+                                 <effect>
+                                    <DropShadow blurType="GAUSSIAN" height="20.0" radius="9.5" width="20.0" />
+                                 </effect>
                                         </SplitPane>
-                                        <SplitPane fx:id="sharehistory" prefHeight="200.0" prefWidth="200.0">
+                                        <SplitPane fx:id="sharehistory" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: white;">
                                             <items>
                                                 <VBox alignment="CENTER" spacing="10.0">
                                                     <children>
@@ -197,7 +201,7 @@
                                                                 <JFXTextField fx:id="searchFile" promptText="Search...." BorderPane.alignment="CENTER" />
                                                             </left>
                                                             <right>
-                                                                <JFXButton fx:id="unsharebutton" disable="true" onAction="#unshareButtonAction" styleClass="button-raised" text="Unshare" BorderPane.alignment="CENTER" />
+                                                                <JFXButton fx:id="unsharebutton" onAction="#unshareButtonAction" styleClass="button-raised" text="Unshare" BorderPane.alignment="CENTER" />
                                                             </right>
                                                             <VBox.margin>
                                                                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
@@ -209,6 +213,9 @@
                                             <padding>
                                                 <Insets bottom="50.0" left="50.0" right="50.0" />
                                             </padding>
+                                 <effect>
+                                    <DropShadow blurType="GAUSSIAN" height="20.0" radius="9.5" width="20.0" />
+                                 </effect>
                                         </SplitPane>
                                         <SplitPane fx:id="swmpane" dividerPositions="0.5" style="-fx-background-color: transparent;">
                                             <items>
@@ -264,6 +271,9 @@
                                                     </center>
                                                 </BorderPane>
                                             </items>
+                                 <effect>
+                                    <DropShadow blurType="GAUSSIAN" height="20.0" radius="9.5" width="20.0" />
+                                 </effect>
                                         </SplitPane>
                                         <SplitPane fx:id="mfpane" dividerPositions="0.5" style="-fx-background-color: transparent;">
                                             <items>
@@ -322,6 +332,9 @@
                                                     </center>
                                                 </BorderPane>
                                             </items>
+                                 <effect>
+                                    <DropShadow blurType="GAUSSIAN" height="20.0" radius="9.5" width="20.0" />
+                                 </effect>
                                         </SplitPane>
                                     </children>
                                 </StackPane>

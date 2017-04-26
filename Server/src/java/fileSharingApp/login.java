@@ -25,7 +25,6 @@ public class login extends HttpServlet {
         String sessionid;
         String user = request.getParameter("username");
         String pass = request.getParameter("password");
-        System.out.println("user:"+user+"pass:"+pass);
         HttpSession session = request.getSession();
         if(!db.check_userexist(user).equals("")){
             if(db.authenticate(user, pass)){

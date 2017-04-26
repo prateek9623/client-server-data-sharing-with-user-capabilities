@@ -28,7 +28,6 @@ public class share extends HttpServlet {
                     response.setStatus(response.SC_FORBIDDEN);
                 } else {
                     String sharedtoid = db.check_userexist(sharetousername);
-                    System.out.println(sharedtoid);
                     if (sharedtoid.equals("null") || sharedtoid.equals("")) {
                         response.setStatus(response.SC_CONFLICT);
                     } else {

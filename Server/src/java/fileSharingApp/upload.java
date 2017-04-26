@@ -67,7 +67,6 @@ public class upload extends HttpServlet {
                         aes.encrypt(encryptPass, tempfile, newfile);
                     } catch (CryptoException ex) {
                         response.setStatus(response.SC_NO_CONTENT);
-                        System.out.println(ex.getMessage());
                         ex.printStackTrace();
                         return;
                     }

@@ -57,7 +57,6 @@ public class decrypt extends HttpServlet {
                             tempfile.delete();
                             newfle.delete();
                             response.setStatus(response.SC_NO_CONTENT);
-                            System.out.println(ex.getMessage());
                             ex.printStackTrace();
                             return;
                         }

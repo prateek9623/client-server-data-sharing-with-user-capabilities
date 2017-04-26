@@ -37,7 +37,6 @@ public class download extends HttpServlet {
                 filepath = connect.getFilePath(sessionid, fileid);
                 if (filepath != null || filepath.equals("")) {
                     File file = new File(filepath);
-                    System.out.println(file.getPath());
                     ServletOutputStream outputStream = response.getOutputStream();
                     ServletContext context = getServletConfig().getServletContext();
                     FileInputStream fis;

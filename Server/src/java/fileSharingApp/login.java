@@ -27,15 +27,19 @@ public class login extends HttpServlet {
         String pass = request.getParameter("password");
         System.out.println("user:"+user+"pass:"+pass);
         HttpSession session = request.getSession();
-        if(db.authenticate(user, pass)){
-            sessionid = session.getId();
-            db.create_session(user, sessionid);
-            session.setAttribute("uname", user);
+        if(!db.check_userexist(user).equals("")){
+            if(db.authenticate(user, pass)){
+                sessionid = session.getId();
+                db.create_session(user, sessionid);
+                session.setAttribute("uname", user);
+                response.getOutputStream().println(sessionid); 
+                response.setStatus(response.SC_ACCEPTED);
+            }else{
+                session.invalidate();
+                response.setStatus(response.SC_UNAUTHORIZED);
+            }
         }else{
-            session.invalidate();
-            sessionid = "WRONGPASS";
-        }
-        System.out.println(sessionid);
-        response.getOutputStream().println(sessionid);    
+            response.setStatus(response.SC_NON_AUTHORITATIVE_INFORMATION);
+        }   
     }
 }

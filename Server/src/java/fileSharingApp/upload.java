@@ -17,6 +17,7 @@ import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 
 /**
@@ -25,60 +26,66 @@ import javax.servlet.http.Part;
  */
 @MultipartConfig
 public class upload extends HttpServlet {
-    protected String temploc =null;
+
+    protected String temploc = null;
     protected String uploadloc = null;
+
     @Override
-    public void init(){
-        temploc =getServletContext().getInitParameter("temp-file-upload");
+    public void init() {
+        temploc = getServletContext().getInitParameter("temp-file-upload");
         uploadloc = getServletContext().getInitParameter("file-upload");
     }
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-//        Part sessionidpart = request.getPart("sessionid");
         dbconnect db = dbconnect.dbconnectref();
-        String sessionid = (String) request.getParameter("sessionid");
-//        String username = (String) request.getSession().getAttribute("uname");
-        if(db.update_session(sessionid)){
-            String username = db.check_session(sessionid);
-            Part filePart = request.getPart("file");
-            String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
-            InputStream fileContent = filePart.getInputStream();
-            boolean checkEncrypt = ((String) request.getParameter("checkEncrypt")).trim().equals("true");
-            if(checkEncrypt){
-                fileName+=".aes";
-            }
-            String filepath = uploadloc+username+"\\\\"+fileName;
-            boolean exists = Files.exists(Paths.get(filepath));
-            File newfile = new File(filepath);
-            if(exists){
-                response.setStatus(response.SC_CONFLICT);
-                return;
-            }
-            if(checkEncrypt){
-                String encryptPass = (String) request.getParameter("pass");
-                File tempfile = new File(temploc+fileName);
-                Files.copy(fileContent, tempfile.toPath());
-                try {
-                    aes.encrypt(encryptPass, tempfile, newfile);
-                } catch (CryptoException ex) {
-                    response.setStatus(response.SC_NO_CONTENT);
-                    System.out.println(ex.getMessage());
-                    ex.printStackTrace();
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            String sessionid = session.getId();
+            if (db.update_session(sessionid)) {
+                String username = db.check_session(sessionid);
+                Part filePart = request.getPart("file");
+                String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+                InputStream fileContent = filePart.getInputStream();
+                boolean checkEncrypt = ((String) request.getParameter("checkEncrypt")).trim().equals("true");
+                if (checkEncrypt) {
+                    fileName += ".aes";
+                }
+                String filepath = uploadloc + username + "\\\\" + fileName;
+                boolean exists = Files.exists(Paths.get(filepath));
+                File newfile = new File(filepath);
+                if (exists) {
+                    response.setStatus(response.SC_CONFLICT);
                     return;
                 }
-                tempfile.delete();
-            }else{
-                Files.copy(fileContent, newfile.toPath());
+                if (checkEncrypt) {
+                    String encryptPass = (String) request.getParameter("pass");
+                    File tempfile = new File(temploc + fileName);
+                    Files.copy(fileContent, tempfile.toPath());
+                    try {
+                        aes.encrypt(encryptPass, tempfile, newfile);
+                    } catch (CryptoException ex) {
+                        response.setStatus(response.SC_NO_CONTENT);
+                        System.out.println(ex.getMessage());
+                        ex.printStackTrace();
+                        return;
+                    }
+                    tempfile.delete();
+                } else {
+                    Files.copy(fileContent, newfile.toPath());
+                }
+                if (db.uploadfileentry(newfile.getName(), sessionid, newfile.length() + "", filepath)) {
+                    response.setStatus(response.SC_ACCEPTED);
+                } else {
+                    newfile.delete();
+                    response.setStatus(response.SC_NO_CONTENT);
+                }
+
+            } else {
+                response.setStatus(response.SC_UNAUTHORIZED);
             }
-            if (db.uploadfileentry(newfile.getName(), sessionid, newfile.length()+"", filepath)) {
-                response.setStatus(response.SC_ACCEPTED);
-            }else{
-                newfile.delete();
-                response.setStatus(response.SC_NO_CONTENT);
-            }
-            
-        }else{
+        } else {
             response.setStatus(response.SC_UNAUTHORIZED);
         }
     }

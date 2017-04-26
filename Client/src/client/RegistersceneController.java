@@ -1,5 +1,12 @@
 package client;
 
+import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.JFXPasswordField;
+import com.jfoenix.controls.JFXRadioButton;
+import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.validation.RequiredFieldValidator;
+import de.jensd.fx.fontawesome.AwesomeIcon;
+import de.jensd.fx.fontawesome.Icon;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -10,6 +17,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javafx.animation.FadeTransition;
+import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -24,13 +33,19 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.input.InputMethodEvent;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicNameValuePair;
+import org.controlsfx.control.Notifications;
 
 /**
  * FXML Controller class
@@ -38,48 +53,72 @@ import org.apache.http.message.BasicNameValuePair;
  * @author prate
  */
 public class RegistersceneController implements Initializable {
-
-    @FXML
-    private TextField frontName;
-    @FXML
-    private TextField lastName;
-    @FXML
-    private TextField email;
-    @FXML
-    private TextField userName;
-    @FXML
-    private TextField phone;
-    @FXML
-    private PasswordField passWord;
-    @FXML
-    private DatePicker dob;
+    private Connect conn = Connect.getInstance();
     @FXML
     private ToggleGroup gender;
-    @FXML
-    private Label pass_vali;
-    @FXML
-    private Label user_vali;
-    private static final String USERNAME_PATTERN = "^[a-z0-9_-]{3,15}$";
-    @FXML
+   @FXML
     private Label main_alert;
     @FXML
-    private Label email_alert;
-    @FXML
-    private Label no_vali;
-    @FXML
     private ProgressIndicator passscore;
-    @FXML
-    private Label dob_alert;
     boolean phone_status = false;
+    boolean email_status = false;
+    boolean username_status = false;
+    boolean password_status = false;
+    private RequiredFieldValidator passwordvalidator;
     @FXML
-    private RadioButton male;
+    private JFXTextField firstName;
     @FXML
-    private RadioButton female;
-
+    private JFXTextField lastName;
+    @FXML
+    private JFXTextField email;
+    @FXML
+    private JFXTextField userName;
+    @FXML
+    private JFXTextField phone;
+    @FXML
+    private JFXPasswordField passWord;
+    @FXML
+    private JFXDatePicker dob;
+    @FXML
+    private JFXRadioButton male;
+    @FXML
+    private JFXRadioButton female;
+    @FXML
+    private VBox registerbox;
+   
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         male.setUserData("Male");
         female.setUserData("Female");
+        RequiredFieldValidator phonevalid = new RequiredFieldValidator(){
+            @Override
+            protected void eval(){
+                if(srcControl.get()instanceof TextInputControl){
+                    TextInputControl textfield = (TextInputControl) srcControl.get();
+                    if(textfield.getText()==null||textfield.getText().equals("")){
+                        setMessage("Input is required");
+                        phone_status= false;
+                        hasErrors.set(true);
+                    }else if(textfield.getText().length()<10){
+                        phone_status = false;
+                        setMessage("Atleast 10 digits are needed");
+                        hasErrors.set(true);
+                    }else{
+                        phone_status=true;
+                        hasErrors.set(false);
+                    }
+                }
+            }
+        };
+        phonevalid.setIcon(new Icon(AwesomeIcon.WARNING, "20", ";", "error"));
+        phone.getValidators().add(phonevalid);
+        phone.focusedProperty().addListener((observable, oldValue, newValue) -> {
+        if(!newValue){
+            phone.validate();
+        }else{
+            phone.resetValidation();
+        }
+        });
         phone.lengthProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
             if (newValue.intValue() > oldValue.intValue()) {
                 char ch = phone.getText().charAt(oldValue.intValue());
@@ -89,54 +128,98 @@ public class RegistersceneController implements Initializable {
                     phone.setText(phone.getText().substring(0, phone.getText().length() - 1));
                 }
             }
-            if (phone.getText().length() < 10) {
-                phone_status = false;
-                no_vali.setText("Very short number");
-            } else {
-                phone_status = true;
-                no_vali.setText("");
-
-            }
         });
-    }
-
-    boolean email_status = false;
-
-    @FXML
-    private void emailverification(KeyEvent event) {
-        String regex = "^(.+)@(.+).(.+)$";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(email.getText());
-        if (!matcher.matches()) {
-            email_alert.setText("Invalid email id.");
-            email_status = false;
-        } else {
-            email_alert.setText("");
-            email_status = true;
+        RequiredFieldValidator emailvalidator = new RequiredFieldValidator(){
+            @Override
+            protected void eval(){
+                if(srcControl.get()instanceof TextInputControl){
+                    TextInputControl textfield = (TextInputControl) srcControl.get();
+                    String regex = "^(.+)@(.+).(.+)$";
+                    Pattern pattern = Pattern.compile(regex);
+                    Matcher matcher = pattern.matcher(textfield.getText());
+                    if(textfield.getText()==null||textfield.getText().equals("")){
+                        setMessage("Input is required");
+                        email_status= false;
+                        hasErrors.set(true);
+                    }else if(!matcher.matches()){
+                        email_status = false;
+                        setMessage("Invalid email id.");
+                        hasErrors.set(true);
+                    }else{
+                        email_status=true;
+                        hasErrors.set(false);
+                    }
+                }
+            }
+        };
+        emailvalidator.setIcon(new Icon(AwesomeIcon.WARNING, "20", ";", "error"));
+        email.getValidators().add(emailvalidator);
+        email.focusedProperty().addListener((observable, oldValue, newValue) -> {
+        if(!newValue){
+            email.validate();
+        }else{
+            email.resetValidation();
         }
-    }
-
-    boolean username_status = false;
-
-    @FXML
-    private void usernameverification(KeyEvent event) {
-        String usertext = userName.getText();
-        Pattern pattern = Pattern.compile(USERNAME_PATTERN);
-        Matcher matcher = pattern.matcher(usertext);
-        if (!matcher.matches()) {
-            user_vali.setText("Invalid Username");
-            username_status = false;
-        } else {
-            user_vali.setText("");
-            username_status = true;
+        });
+        RequiredFieldValidator usernamevalidator = new RequiredFieldValidator(){
+            @Override
+            protected void eval(){
+                if(srcControl.get()instanceof TextInputControl){
+                    TextInputControl textfield = (TextInputControl) srcControl.get();
+                    String regex = "^[a-z0-9_-]{3,15}$";
+                    Pattern pattern = Pattern.compile(regex);
+                    Matcher matcher = pattern.matcher(textfield.getText());
+                    if(textfield.getText()==null||textfield.getText().equals("")){
+                        setMessage("Input is required");
+                        username_status= false;
+                        hasErrors.set(true);
+                    }else if(!matcher.matches()){
+                        username_status = false;
+                        setMessage("Invalid username.");
+                        hasErrors.set(true);
+                    }else{
+                        username_status=true;
+                        hasErrors.set(false);
+                    }
+                }
+            }
+        };
+        usernamevalidator.setIcon(new Icon(AwesomeIcon.WARNING, "20", ";", "error"));
+        userName.getValidators().add(usernamevalidator);
+        userName.focusedProperty().addListener((observable, oldValue, newValue) -> {
+        if(!newValue){
+            userName.validate();
+        }else{
+            userName.resetValidation();
         }
-    }
-
-    boolean password_status = false;
-
-    @FXML
-    private void passwordverification(KeyEvent event) {
-        passscore.setProgress((double) validatePassword() / 100);
+        });
+        passwordvalidator = new RequiredFieldValidator(){
+            @Override
+            protected void eval(){
+                if(srcControl.get()instanceof TextInputControl){
+                    TextInputControl textfield = (TextInputControl) srcControl.get();
+                    if(textfield.getText()==null||textfield.getText().equals("")){
+                        setMessage("Input is required");
+                        phone_status= false;
+                        hasErrors.set(true);
+                    }else if(!password_status){
+                        hasErrors.set(true);
+                    }else{
+                        username_status=true;
+                        hasErrors.set(false);
+                    }
+                }
+            }
+        };
+        passwordvalidator.setIcon(new Icon(AwesomeIcon.WARNING, "20", ";", "error"));
+        passWord.getValidators().add(passwordvalidator);
+        passWord.focusedProperty().addListener((observable, oldValue, newValue) -> {
+        if(!newValue){
+            passWord.validate();
+        }else{
+            passWord.resetValidation();
+        }
+        });
     }
 
     private int validatePassword() {
@@ -145,40 +228,37 @@ public class RegistersceneController implements Initializable {
         String passtext = passWord.getText();
         boolean valid = true;
         if (passtext.length() > 15 || passtext.length() < 8) {
-            pass_vali.setText("Password should be in range of 8 to 22.");
+            passwordvalidator.setMessage("Password should be in range of 8 to 22.");
             pass_score -= 25;
             valid = false;
         }
         if (passtext.contains(usertext.trim())) {
             valid = false;
-            pass_vali.setText("Password should not containg username.");
+            passwordvalidator.setMessage("Password should not contain username.");
         }
-        String upperCaseChars = "(.*[A-Z].*)";
-        if (!passtext.matches(upperCaseChars)) {
-            pass_vali.setText("Password should contain atleast one upper case alphabet");
+//        String specialChars = "(.*[.,~,!,@,#,$,%,^,&,*,(,),-,_,=,+,[,{,],},|,;,:,<,>,/,?].*$)";
+        if (!Pattern.compile("[$&+,:;=?@#|]").matcher(passtext).find()) {
+            passwordvalidator.setMessage("Password should contain atleast one special character");
             valid = false;
             pass_score -= 15;
         }
-        String lowerCaseChars = "(.*[a-z].*)";
-        if (!passtext.matches(lowerCaseChars)) {
-            pass_vali.setText("Password should contain atleast one lower case alphabet");
+        if (!passtext.matches(".*\\d+.*")) {
+            passwordvalidator.setMessage("Password should contain atleast one number.");
             valid = false;
             pass_score -= 15;
         }
-        String numbers = "(.*[0-9].*)";
-        if (!passtext.matches(numbers)) {
-            pass_vali.setText("Password should contain atleast one number.");
+        if (!passtext.matches("(.*[A-Z].*)")) {
+            passwordvalidator.setMessage("Password should contain atleast one upper case alphabet");
             valid = false;
             pass_score -= 15;
         }
-        String specialChars = "(.*[.,~,!,@,#,$,%,^,&,*,(,),-,_,=,+,[,{,],},|,;,:,<,>,/,?].*$)";
-        if (!passtext.matches(specialChars)) {
-            pass_vali.setText("Password should contain atleast one special character");
+        if (!passtext.matches("(.*[a-z].*)")) {
+            passwordvalidator.setMessage("Password should contain atleast one lower case alphabet");
             valid = false;
             pass_score -= 15;
         }
         if (valid) {
-            pass_vali.setText("");
+            passwordvalidator.setMessage("");
             pass_score = 100;
             password_status = true;
         } else {
@@ -189,66 +269,54 @@ public class RegistersceneController implements Initializable {
 
     @FXML
     private void createAccount(ActionEvent event) throws IOException {
-        if (!username_status || lastName.getText().trim().isEmpty() || !email_status || frontName.getText().trim().isEmpty() || phone.getText().trim().isEmpty() || !password_status) {
+        if (!username_status || lastName.getText().trim().isEmpty() || !email_status || firstName.getText().trim().isEmpty() || phone.getText().trim().isEmpty() || !password_status) {
             main_alert.setText("Please fill all the fields correctly");
         } else {
             main_alert.setText("");
-            System.out.println("name: " + frontName.getText() + " " + lastName.getText());
-            System.out.println("Email: " + email.getText());
-            System.out.println("username: " + userName.getText());
-            System.out.println("contact no.: " + phone.getText());
-            System.out.println("DOB:" + dob.getValue().toString());
-            System.out.println("pass:" + passWord.getText());
-            System.out.println("Gender: " + gender.getSelectedToggle().getUserData().toString());
-            String response = register(frontName.getText(), lastName.getText(), email.getText(), phone.getText(), dob.getValue().toString(), gender.getSelectedToggle().getUserData().toString(), userName.getText(), passWord.getText());
-            if (response.equals("SUCCESS")) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("loginscene.fxml"));
+            int response = conn.register(firstName.getText(), lastName.getText(), email.getText(), phone.getText(), dob.getValue().toString(), gender.getSelectedToggle().getUserData().toString(), userName.getText(), passWord.getText());
+            if (response==HttpStatus.SC_ACCEPTED) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/resources/fxml/loginscene.fxml"));
                 Parent register = loader.load();
                 Scene scene = new Scene(register);
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                 stage.hide();
                 stage.setScene(scene);
-                LoginsceneController controller = loader.getController();
-                controller.set_status("Registration Successful");
+                Platform.runLater(() -> {
+                        Notifications.create()
+                                .title("Information")
+                                .text("Registration Successful.").hideAfter(Duration.seconds(2))
+                                .showInformation();
+                    });
                 stage.show();
             } else {
-                main_alert.setText("Registration failed");
+                Platform.runLater(() -> {
+                        Notifications.create()
+                                .title("Information")
+                                .text("Registration Unsuccessful.").hideAfter(Duration.seconds(2))
+                                .showInformation();
+                    });
             }
         }
     }
 
     @FXML
     private void cancel(ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("loginscene.fxml"));
-        Parent register = loader.load();
-        Scene scene = new Scene(register);
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.hide();
-        stage.setScene(scene);
-        stage.show();
+        VBox loginbox = new FXMLLoader(getClass().getResource("/resources/fxml/loginscene.fxml")).load();
+        FadeTransition ft = new FadeTransition(Duration.millis(1000), registerbox);
+        ft.setFromValue(1.0);
+        ft.setToValue(0.0);
+        FadeTransition ft1 = new FadeTransition(Duration.millis(1000), loginbox);
+        ft1.setFromValue(0.0);
+        ft1.setToValue(1.0);
+        ft.play();
+        ft1.play();
     }
 
-    private String register(String fname, String lname, String email, String phone, String dob, String gender, String user, String pass) {
-        String sid;
-        StringBuilder sb = new StringBuilder();
-        Connect connect = Connect.getInstance();
-        HttpPost httppost = new HttpPost("http://localhost:8080/Server/register");
-        try {
-            List<NameValuePair> params = new ArrayList<>(2);
-            params.add(new BasicNameValuePair("username", user));
-            params.add(new BasicNameValuePair("password", pass));
-            params.add(new BasicNameValuePair("fname", fname));
-            params.add(new BasicNameValuePair("lname", lname));
-            params.add(new BasicNameValuePair("phone", phone));
-            params.add(new BasicNameValuePair("email", email));
-            params.add(new BasicNameValuePair("gender", gender));
-            params.add(new BasicNameValuePair("dob", dob));
-            httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-        } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(RegistersceneController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        sid = connect.getResponse(httppost);
-        return sid;
+    @FXML
+    private void passwordverification(KeyEvent event) {
+        passscore.setProgress((double) validatePassword() / 100);
     }
+
+    
 
 }

@@ -31,6 +31,7 @@ public class dbconnect {
             rs = st.executeQuery(query);
             rs.last();
             boolean result = rs.getRow()>0;
+//            con.close();
             return result;
         }catch(SQLException ex) {
             System.out.println("Login failed: "+ex);
@@ -249,7 +250,7 @@ public class dbconnect {
                             "            FROM\n" +
                             "                sessions\n" +
                             "            WHERE\n" +
-                            "                sessionid = 'asdasd') UNION ALL SELECT \n" +
+                            "                sessionid = '"+sessionid+"') UNION ALL SELECT \n" +
                             "            sh.id,\n" +
                             "            f.file_name,\n" +
                             "            f.file_size,\n" +
@@ -279,7 +280,7 @@ public class dbconnect {
                             "            FROM\n" +
                             "                sessions\n" +
                             "            WHERE\n" +
-                            "                sessionid = 'asdasd') UNION ALL (SELECT \n" +
+                            "                sessionid = '"+sessionid+"') UNION ALL (SELECT \n" +
                             "        sh.id,\n" +
                             "            f.file_name,\n" +
                             "            f.file_size,\n" +
@@ -309,7 +310,7 @@ public class dbconnect {
                             "            FROM\n" +
                             "                sessions\n" +
                             "            WHERE\n" +
-                            "                sessionid = 'asdasd')))) s\n" +
+                            "                sessionid = '"+sessionid+"')))) s\n" +
                             "ORDER BY s.file_name ASC;";
             ResultSet rs = st.executeQuery(query);
             while(rs.next()){

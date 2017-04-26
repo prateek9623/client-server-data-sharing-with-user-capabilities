@@ -11,6 +11,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -20,12 +21,17 @@ public class restore extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String sessionid = (String) request.getParameter("sessionid");
-        String fileid = (String) request.getParameter("fileid");
-        dbconnect db = dbconnect.dbconnectref();
-        if(db.update_session(sessionid)&&db.restore(sessionid,fileid)){
-            response.setStatus(response.SC_ACCEPTED);
-        }else{
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            String sessionid = session.getId();
+            String fileid = (String) request.getParameter("fileid");
+            dbconnect db = dbconnect.dbconnectref();
+            if (db.update_session(sessionid) && db.restore(sessionid, fileid)) {
+                response.setStatus(response.SC_ACCEPTED);
+            } else {
+                response.setStatus(response.SC_FORBIDDEN);
+            }
+        } else {
             response.setStatus(response.SC_FORBIDDEN);
         }
     }

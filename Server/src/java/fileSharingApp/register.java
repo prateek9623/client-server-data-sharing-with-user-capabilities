@@ -27,14 +27,6 @@ public class register extends HttpServlet {
         String email = request.getParameter("email");
         String gender = request.getParameter("gender");
         String dob = request.getParameter("dob");
-        System.out.println("user:"+user+
-                "\npass:"+pass+
-                "\nfname:"+fname+
-                "\nlname:"+lname+
-                "\nphone:"+phone+
-                "\nemail"+email+
-                "gender:"+gender+
-                "dob"+dob);
         dbconnect db = dbconnect.dbconnectref();
         if(db.register(user, pass, fname, lname, email, phone, dob, gender)){
             response.setStatus(response.SC_ACCEPTED);

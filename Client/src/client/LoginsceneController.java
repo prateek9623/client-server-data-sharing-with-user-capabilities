@@ -55,7 +55,6 @@ public class LoginsceneController implements Initializable {
     private boolean user_status = false;
     private boolean pass_status = false;
     private FXMLLoader loader = new FXMLLoader(getClass().getResource("/resources/fxml/mainscene.fxml"));
-//    private FXMLLoader registerloader = new FXMLLoader(getClass().getResource("/resources/fxml/registerscene.fxml"));
     @FXML
     private JFXPasswordField pass;
     @FXML

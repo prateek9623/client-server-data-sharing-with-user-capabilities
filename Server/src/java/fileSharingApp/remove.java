@@ -22,12 +22,22 @@ public class remove extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String sessionid = (String) request.getParameter("sessionid");
-        String fileid = (String) request.getParameter("fileid");
+        String shareid = (String) request.getParameter("fileid");
+        String pass = (String) request.getParameter("password");
         dbconnect db = dbconnect.dbconnectref();
-        if(db.update_session(sessionid)&&db.removeshare(sessionid,fileid)){
-            response.setStatus(response.SC_ACCEPTED);
+        if(db.update_session(sessionid)){
+            String userid = db.check_password(sessionid, pass);
+            if (userid.equals("")) {
+                response.setStatus(response.SC_FORBIDDEN);
+            }else{
+                if(db.unShare(userid,shareid)){
+                    response.setStatus(response.SC_ACCEPTED);
+                }else{
+                    response.setStatus(response.SC_BAD_REQUEST);
+                }
+            }
         }else{
-            response.setStatus(response.SC_FORBIDDEN);
+            response.setStatus(response.SC_BAD_GATEWAY);
         }
     }
 

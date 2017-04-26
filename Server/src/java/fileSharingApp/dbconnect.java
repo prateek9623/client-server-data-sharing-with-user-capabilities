@@ -403,7 +403,7 @@ public class dbconnect {
         return false;
     }
 
-    boolean unShare(String username, String shareid) {
+    boolean unShare(String userid, String shareid) {
         try{
             connect();
             String query =  "DELETE FROM shared_file_list \n" +
@@ -415,14 +415,14 @@ public class dbconnect {
                             "        user\n" +
                             "    \n" +
                             "    WHERE\n" +
-                            "        username = '"+username+"') OR "+
+                            "        userid = '"+userid+"') OR "+
                             "     sharer_id = (SELECT \n" +
                             "        userid\n" +
                             "    FROM\n" +
                             "        user\n" +
                             "    \n" +
                             "    WHERE\n" +
-                            "        username = '"+username+"'));";
+                            "        userid = '"+userid+"'));";
             PreparedStatement update = con.prepareStatement(query);
             int i = update.executeUpdate();
             return i>0;

@@ -23,15 +23,14 @@ public class updatesession extends HttpServlet {
         HttpSession session = request.getSession(false);
         if(session!=null){
         String sessionid = session.getId();
-        System.out.println(sessionid);
-//        String Sessionid = request.getParameter("sessionid");
             if(db.update_session(sessionid)){
                 response.getOutputStream().println((String) session.getAttribute("uname"));
+                response.setStatus(response.SC_ACCEPTED);
             }else{
-                response.getOutputStream().println("FAILED");
+                response.setStatus(response.SC_GATEWAY_TIMEOUT);
             }
         }else{
-            response.getOutputStream().println("INVALID");
+            response.setStatus(response.SC_UNAUTHORIZED);
         }
     }
     

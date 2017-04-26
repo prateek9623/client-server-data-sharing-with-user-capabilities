@@ -37,9 +37,9 @@ public class register extends HttpServlet {
                 "dob"+dob);
         dbconnect db = dbconnect.dbconnectref();
         if(db.register(user, pass, fname, lname, email, phone, dob, gender)){
-            response.getOutputStream().println("SUCCESS");
+            response.setStatus(response.SC_ACCEPTED);
         }else{
-            response.getOutputStream().println("FAILED");
+            response.setStatus(response.SC_BAD_REQUEST);
         }
     }
 }

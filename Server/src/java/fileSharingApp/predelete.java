@@ -32,7 +32,7 @@ public class predelete extends HttpServlet {
                 response.setStatus(response.SC_FORBIDDEN);
             }
         } else {
-            response.setStatus(response.SC_FORBIDDEN);
+            response.setStatus(response.SC_GATEWAY_TIMEOUT);
         }
     }
 }

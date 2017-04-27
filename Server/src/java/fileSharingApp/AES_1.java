@@ -1,14 +1,5 @@
 package fileSharingApp;
 
-/*
- * ----------------------------------------------------------------------------
- * "THE BEER-WARE LICENSE" (Revision 42):
- * <dweymouth@gmail.com> wrote this file. As long as you retain this notice you
- * can do whatever you want with this stuff. If we meet some day, and you think
- * this stuff is worth it, you can buy me a beer in return.  D. Weymouth 4/2014
- * ----------------------------------------------------------------------------
- */
-
 import java.io.*;
 import java.security.*;
 import java.security.spec.*;
@@ -16,16 +7,6 @@ import java.util.*;
 
 import javax.crypto.*;
 import javax.crypto.spec.*;
-
-/**
- * A class to perform password-based AES encryption and decryption in CBC mode.
- * 128, 192, and 256-bit encryption are supported, provided that the latter two
- * are permitted by the Java runtime's jurisdiction policy files.
- * <br/>
- * The public interface for this class consists of the static methods
- * {@link #encrypt} and {@link #decrypt}, which encrypt and decrypt arbitrary
- * streams of data, respectively.
- */
 public class AES_1 {
 
 	// AES specification - changing will break existing encrypted streams!
@@ -247,7 +228,13 @@ public class AES_1 {
 	/**
 	 * Thrown if an attempt is made to decrypt a stream with an incorrect password.
 	 */
-	public static class InvalidPasswordException extends Exception { }
+	public static class InvalidPasswordException extends Exception { 
+
+        public InvalidPasswordException() {
+            super("Incorrect Password");
+        }
+            
+        }
 	
 	/**
 	 * Thrown if an attempt is made to encrypt a stream with an invalid AES key length.

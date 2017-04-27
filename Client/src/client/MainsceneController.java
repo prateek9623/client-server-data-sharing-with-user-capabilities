@@ -858,6 +858,7 @@ public class MainsceneController implements Initializable {
                 switch (status) {
                     case HttpStatus.SC_ACCEPTED:
                         sidePaneNotification("File shared");
+                        paintcontains();
                         break;
                     case HttpStatus.SC_FORBIDDEN:
                         sidePaneNotification("Your password is wrong");
@@ -1043,6 +1044,7 @@ public class MainsceneController implements Initializable {
         switch (status) {
             case HttpStatus.SC_ACCEPTED:
                 sidePaneNotification("File Moved to Recycle bin");
+                paintcontains();
                 break;
             default:
                 sidePaneNotification("Check Connection");

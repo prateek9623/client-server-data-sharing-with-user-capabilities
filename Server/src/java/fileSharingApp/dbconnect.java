@@ -338,14 +338,15 @@ public class dbconnect {
     String delete(String sessionid, String deletefile, String password) {
         try {
             String getfilepath = getFilePath(sessionid, deletefile);
+            connect();
             if (getfilepath != null || !getfilepath.equals("")) {
                 String query = "DELETE FROM file_list WHERE owner_id = (Select userid from user where userid=(Select userid from sessions where sessionid = '" + sessionid + "') and password = '" + password + "') AND file_id ='" + deletefile + "'";
                 PreparedStatement delete = con.prepareStatement(query);
                 delete.execute();
-                return getfilepath;
             }
-            return "null";
+            return getfilepath;
         } catch (SQLException ex) {
+            System.out.println(ex);
             return "null";
         }finally {
             if (rs != null) {

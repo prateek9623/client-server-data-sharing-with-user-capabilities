@@ -71,6 +71,7 @@ public class dbconnect {
             boolean result = insert.executeUpdate() > 0;
             return result;
         } catch (SQLException ex) {
+            System.out.println(ex);
             return false;
         }finally {
             if (rs != null) {
@@ -489,7 +490,7 @@ public class dbconnect {
         try {
             connect();
             String query = " SELECT \n"
-                    + "    *\n"
+                    + "    * \n"
                     + "FROM\n"
                     + "    (SELECT \n"
                     + "        f.file_id,\n"

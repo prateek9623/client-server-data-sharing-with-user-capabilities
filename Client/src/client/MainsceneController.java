@@ -307,19 +307,9 @@ public class MainsceneController implements Initializable {
         int sessionstatus = connect.updateSession();
         if (sessionstatus != HttpStatus.SC_ACCEPTED) {
             if (sessionstatus == HttpStatus.SC_UNAUTHORIZED) {
-                Platform.runLater(() -> {
-                    Notifications.create()
-                            .title("Information")
-                            .text("Invalid access!!").hideAfter(Duration.seconds(2))
-                            .showInformation();
-                });
+                sidePaneNotification("Invalid access");
             } else if (sessionstatus == HttpStatus.SC_GATEWAY_TIMEOUT) {
-                Platform.runLater(() -> {
-                    Notifications.create()
-                            .title("Information")
-                            .text("Session Expired").hideAfter(Duration.seconds(2))
-                            .showInformation();
-                });
+                sidePaneNotification("Session Expired");
             }
             haltexecution();
         }
@@ -400,20 +390,10 @@ public class MainsceneController implements Initializable {
         logout.setOnAction(e -> {
             logoutConfirmButton.setOnAction((event) -> {
                 if (connect.logout()) {
-                    Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("Logout Success").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                    });
+                    sidePaneNotification("Logout Success");
                     logoutToLogin(event);
                 } else {
-                    Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("Logout Failed").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                    });
+                    sidePaneNotification("Logout failed");
                 }
             });
             logoutdialog.setTransitionType(JFXDialog.DialogTransition.CENTER);
@@ -719,54 +699,27 @@ public class MainsceneController implements Initializable {
                     if (responseentity != null) {
                         switch (response.getStatusLine().getStatusCode()) {
                             case HttpStatus.SC_ACCEPTED:
-                                Platform.runLater(() -> {
-                                    Notifications.create()
-                                            .title("Information")
-                                            .text(file.getName() + " Uploaded").hideAfter(Duration.seconds(2))
-                                            .showInformation();
-                                    paintcontains();
-                                });
+                                sidePaneNotification(file.getName() + " Uploaded");
+                                paintcontains();
                                 break;
                             case HttpStatus.SC_CONFLICT:
-                                Platform.runLater(() -> {
-                                    Notifications.create()
-                                            .title("Information")
-                                            .text("File already exists").hideAfter(Duration.seconds(2))
-                                            .showInformation();
-                                });
+                                sidePaneNotification("File with that name already exist");
                                 break;
                             case HttpStatus.SC_NO_CONTENT:
-                                Platform.runLater(() -> {
-                                    Notifications.create()
-                                            .title("Information")
-                                            .text("File can't be encrypted").hideAfter(Duration.seconds(2))
-                                            .showInformation();
-                                });
+                                sidePaneNotification("Upload failed.");
                                 break;
                             case HttpStatus.SC_UNAUTHORIZED:
-                                Platform.runLater(() -> {
-                                    Notifications.create()
-                                            .title("Information")
-                                            .text("Unauthorized access").hideAfter(Duration.seconds(2))
-                                            .showInformation();
-                                });
+                                sidePaneNotification("Unauthorized access");
+                                break;
+                            case HttpStatus.SC_PARTIAL_CONTENT:
+                                sidePaneNotification("Invalid Key");
                                 break;
                             default:
-                                Platform.runLater(() -> {
-                                    Notifications.create()
-                                            .title("Information")
-                                            .text("File not uploaded " + file.getName()).hideAfter(Duration.seconds(2))
-                                            .showInformation();
-                                });
+                                sidePaneNotification("Upload failed");
                                 break;
                         }
                     } else {
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("Check Connection").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                        });
+                        sidePaneNotification("Check Connection");
                     }
                 } catch (IOException ex) {
                     System.out.println(ex);
@@ -860,37 +813,21 @@ public class MainsceneController implements Initializable {
                                 }
                                 bis.close();
                                 bos.close();
-                                Platform.runLater(() -> {
-                                    Notifications.create()
-                                            .title("Information")
-                                            .text(fileList.get(i).getFile_name().replace(".aes", "") + " Downloaded").hideAfter(Duration.seconds(2))
-                                            .showInformation();
-                                });
+                                sidePaneNotification(fileList.get(i).getFile_name().replace(".aes", "") + " Downloaded");
+                                
                                 break;
                             case HttpStatus.SC_CONFLICT:
-                                Platform.runLater(() -> {
-                                    Notifications.create()
-                                            .title("Information")
-                                            .text("Decryption error").hideAfter(Duration.seconds(2))
-                                            .showInformation();
-                                });
+                                sidePaneNotification("Decryption error");
+                                break;
+                            case HttpStatus.SC_UNAUTHORIZED:
+                                sidePaneNotification("Incorrect Key");
                                 break;
                             default:
-                                Platform.runLater(() -> {
-                                    Notifications.create()
-                                            .title("Information")
-                                            .text("File not Downloaded ").hideAfter(Duration.seconds(2))
-                                            .showInformation();
-                                });
+                                sidePaneNotification("File not downloaded");
                                 break;
                         }
                     } else {
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("Check Connection").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                        });
+                        sidePaneNotification("Check Connection");
                     }
                     return null;
                 } catch (UnsupportedEncodingException ex) {
@@ -920,37 +857,16 @@ public class MainsceneController implements Initializable {
                 int status = connect.shareFile(receiverid.getText(), sharerPassowrd.getText(), fileList.get((int) mfbuttonGroup.getSelectedToggle().getUserData()).getFile_id());
                 switch (status) {
                     case HttpStatus.SC_ACCEPTED:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("File shared").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                            paintcontains();
-                        });
+                        sidePaneNotification("File shared");
                         break;
                     case HttpStatus.SC_FORBIDDEN:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("Entered password is wrong").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                        });
+                        sidePaneNotification("Your password is wrong");
                         break;
                     case HttpStatus.SC_CONFLICT:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("Person you want to share doesnt exist!").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                        });
+                        sidePaneNotification("User with that username doesn't exist");
                         break;
                     default:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("Check Connection").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                        });
+                        sidePaneNotification("Check Connection");
                         break;
                 }
                 sharedialog.close();
@@ -992,30 +908,14 @@ public class MainsceneController implements Initializable {
                 int status = connect.fileRename(newname, fileList.get(i).getFile_id());
                 switch (status) {
                     case HttpStatus.SC_ACCEPTED:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("File renamed.").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                            paintcontains();
-                        });
+                        sidePaneNotification("File renamed");
+                        paintcontains();
                         break;
                     case HttpStatus.SC_CONFLICT:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("File with this name already exist.").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                            paintcontains();
-                        });
+                        sidePaneNotification("File with that name already exist");
                         break;
                     default:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("Check Connection").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                        });
+                        sidePaneNotification("Check Connection");
                         break;
                 }
                 renamedialog.close();
@@ -1047,37 +947,23 @@ public class MainsceneController implements Initializable {
             if (!encryptpass.equals("") && !pass.equals("") && encryptpass.length() == 16) {
                 switch (connect.fileEncrypt(fileList.get(i).getFile_id(), encryptpass, pass)) {
                     case HttpStatus.SC_ACCEPTED:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("File Encrypted successfully.").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                            paintcontains();
-                        });
+                        sidePaneNotification("File is encrypted successfully.");
+                        paintcontains();
                         break;
                     case HttpStatus.SC_CONFLICT:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("File is already encrypted").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                        });
+                        sidePaneNotification("File is already encrypted once");
                         break;
                     case HttpStatus.SC_FORBIDDEN:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("Check Connection").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                        });
+                        sidePaneNotification("Invalid access");
+                        break;
+                    case HttpStatus.SC_EXPECTATION_FAILED:
+                        sidePaneNotification("Key size Incorrect");
+                        break;
+                    case HttpStatus.SC_PARTIAL_CONTENT:
+                        sidePaneNotification("Key size Incorrect");
                         break;
                     default:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("File Encryption unsucessful.").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                        });
+                        sidePaneNotification("encryption Unsuccessful");
                         break;
                 }
                 encryptdialog.close();
@@ -1117,39 +1003,26 @@ public class MainsceneController implements Initializable {
                 int status = connect.fileDecrypt(fileList.get(i).getFile_id(), decryptpass1, pass);
                 switch (status) {
                     case HttpStatus.SC_ACCEPTED:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("File encryption removed.").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                            paintcontains();
-                        });
+                        sidePaneNotification("Decryption Success");
+                        paintcontains();
+                        break;
+                    case HttpStatus.SC_BAD_REQUEST:
+                        sidePaneNotification("File is not encrypted or file with that name already exist");
                         break;
                     case HttpStatus.SC_CONFLICT:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("File is already decrypted.").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                            paintcontains();
-                        });
+                        sidePaneNotification("File is not encrypted or file with that name already exist");
+                        break;
+                    case HttpStatus.SC_UNAUTHORIZED:
+                        sidePaneNotification("Incorrect Key");
+                        break;
+                    case HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE:
+                        sidePaneNotification("Invalid Key");
                         break;
                     case 808:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("Check Connection").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                            paintcontains();
-                        });
+                        sidePaneNotification("Check Connection");
                         break;
                     default:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("File decryption failed.").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                        });
+                        sidePaneNotification("File Decryption Failed");
                         break;
                 }
                 decryptdialog.close();
@@ -1169,21 +1042,10 @@ public class MainsceneController implements Initializable {
         int status = connect.filePredelete(fileList.get((int) mfbuttonGroup.getSelectedToggle().getUserData()).getFile_id());
         switch (status) {
             case HttpStatus.SC_ACCEPTED:
-                Platform.runLater(() -> {
-                    Notifications.create()
-                            .title("Information")
-                            .text("File moved to recycle bin.").hideAfter(Duration.seconds(2))
-                            .showInformation();
-                    paintcontains();
-                });
+                sidePaneNotification("File Moved to Recycle bin");
                 break;
             default:
-                Platform.runLater(() -> {
-                    Notifications.create()
-                            .title("Information")
-                            .text("check Connection.").hideAfter(Duration.seconds(2))
-                            .showInformation();
-                });
+                sidePaneNotification("Check Connection");
                 break;
         }
     }
@@ -1193,30 +1055,14 @@ public class MainsceneController implements Initializable {
         int status = connect.restoreFile(fileList.get((int) binbuttonGroup.getSelectedToggle().getUserData()).getFile_id());
         switch (status) {
             case HttpStatus.SC_ACCEPTED:
-                Platform.runLater(() -> {
-                    Notifications.create()
-                            .title("Information")
-                            .text("File restored.").hideAfter(Duration.seconds(2))
-                            .showInformation();
-                    paintcontains();
-                });
+                sidePaneNotification("File restored");
+                paintcontains();
                 break;
             case HttpStatus.SC_FORBIDDEN:
-                Platform.runLater(() -> {
-                    Notifications.create()
-                            .title("Information")
-                            .text("File not restored.").hideAfter(Duration.seconds(2))
-                            .showInformation();
-                    paintcontains();
-                });
+                sidePaneNotification("File couldn't be restored");
                 break;
             default:
-                Platform.runLater(() -> {
-                    Notifications.create()
-                            .title("Information")
-                            .text("Check Connection").hideAfter(Duration.seconds(2))
-                            .showInformation();
-                });
+                sidePaneNotification("Check Connection");
                 break;
         }
 
@@ -1242,29 +1088,14 @@ public class MainsceneController implements Initializable {
             } else {
                 switch (connect.filePermadelete(fileList.get(userdata).getFile_id(), userpass.getText().trim())) {
                     case HttpStatus.SC_ACCEPTED:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("File deleted").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                        });
+                        sidePaneNotification("File Deleted");
                         paintcontains();
                         break;
                     case 808:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("Check Connection").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                        });
+                        sidePaneNotification("Check Connection");
                         break;
                     default:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("File not deleted").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                        });
+                        sidePaneNotification("File not deleted");
                         break;
                 }
                 deletedialog.close();
@@ -1477,29 +1308,14 @@ public class MainsceneController implements Initializable {
             } else {
                 switch (connect.unshareFile(id, pass)) {
                     case HttpStatus.SC_ACCEPTED:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("File Unshared.").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                            paintcontains();
-                        });
+                        sidePaneNotification("File UnShared");
+                        paintcontains();
                         break;
                     case HttpStatus.SC_BAD_REQUEST:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("File not found.").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                        });
+                        sidePaneNotification("File not found.");
                         break;
                     default:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("Check Connection").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                        });
+                        sidePaneNotification("Check Connection");
                         break;
                 }
                 unsharedialog.close();
@@ -1530,6 +1346,15 @@ public class MainsceneController implements Initializable {
         } catch (IOException ex) {
             haltexecution();
         }
+    }
+
+    private void sidePaneNotification(String message) {
+        Platform.runLater(() -> {
+                    Notifications.create()
+                            .title("Information")
+                            .text(message).hideAfter(Duration.seconds(2))
+                            .showInformation();
+                });
     }
 
     private static interface ProgressListener {

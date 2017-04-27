@@ -377,12 +377,7 @@ public class LoginsceneController implements Initializable {
             main_alert.setText("");
             int response = connect.register(firstName.getText(), lastName.getText(), email.getText(), phone.getText(), dob.getValue().toString(), gender.getSelectedToggle().getUserData().toString(), userName.getText(), passWord.getText());
             if (response==HttpStatus.SC_ACCEPTED) {
-                Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("Registration Successful.").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                    });
+                sidePaneNotification("Registration Successful.");
                 FadeTransition ft = new FadeTransition(Duration.millis(1000), registerbox);
                 ft.setFromValue(1.0);
                 ft.setToValue(0.0);
@@ -393,12 +388,7 @@ public class LoginsceneController implements Initializable {
                 ft1.play();
                 loginbox.toFront();
             } else {
-                Platform.runLater(() -> {
-                        Notifications.create()
-                                .title("Information")
-                                .text("Registration Unsuccessful.").hideAfter(Duration.seconds(2))
-                                .showInformation();
-                    });
+                sidePaneNotification("Registration Unsuccessful.");
             }
         }
     }
@@ -415,12 +405,7 @@ public class LoginsceneController implements Initializable {
                 int status = connect.authorize(username.getText().trim(), pass.getText().trim());
                 switch (status) {
                     case HttpStatus.SC_ACCEPTED:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("Login successfull.").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                        }); 
+                        sidePaneNotification("Login successfull.");
                         Parent main = loader.load();
                         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                         stage.close();
@@ -438,30 +423,17 @@ public class LoginsceneController implements Initializable {
                         message.setVisible(false);
                         break;
                     case HttpStatus.SC_NON_AUTHORITATIVE_INFORMATION:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("Invalid Username.").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                        }); message.setText("Invalid Username.");
+                        sidePaneNotification("Invalid Username");
+                        message.setText("Invalid Username.");
                         message.setVisible(true);
                         break;
                     case HttpStatus.SC_UNAUTHORIZED:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("Incorrect password.").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                        }); message.setText("Invalid Password.");
+                        sidePaneNotification("Invalid Password");
+                        message.setText("Invalid Password.");
                         message.setVisible(true);
                         break;
                     default:
-                        Platform.runLater(() -> {
-                            Notifications.create()
-                                    .title("Information")
-                                    .text("Check Connection").hideAfter(Duration.seconds(2))
-                                    .showInformation();
-                        });
+                        sidePaneNotification("Check Connection");
                         break;
                 }
             }
@@ -483,5 +455,14 @@ public class LoginsceneController implements Initializable {
         }catch(Exception e){
             Platform.exit();
         }
+    }
+
+    private void sidePaneNotification(String message) {
+        Platform.runLater(() -> {
+                        Notifications.create()
+                                .title("Information")
+                                .text(message).hideAfter(Duration.seconds(2))
+                                .showInformation();
+                    });
     }
 }

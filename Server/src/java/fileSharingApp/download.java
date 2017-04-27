@@ -41,8 +41,10 @@ public class download extends HttpServlet {
                     ServletOutputStream outputStream = response.getOutputStream();
                     ServletContext context = getServletConfig().getServletContext();
                     FileInputStream fis = new FileInputStream(file);
+                    FileInputStream newFileInputStream;
                     File tempfile;
                     if (!file.getName().endsWith(".aes")) {
+                        newFileInputStream = new FileInputStream(file);
                         String mimetype = context.getMimeType(file.getPath());
                         response.setContentType((mimetype != null) ? mimetype : "application/octet-stream");
                         response.setContentLength((int) file.length());
@@ -53,7 +55,7 @@ public class download extends HttpServlet {
                         String pass = request.getParameter("pass");
                         try {
                             AES_1.decrypt(pass.toCharArray(), fis, tempFileOutputStream);
-                            fis = new FileInputStream(tempfile);
+                            newFileInputStream = new FileInputStream(tempfile);
                             String mimetype = context.getMimeType(tempfile.getPath());
                             response.setContentType((mimetype != null) ? mimetype : "application/octet-stream");
                             response.setContentLength((int) tempfile.length());
@@ -78,10 +80,10 @@ public class download extends HttpServlet {
                     response.setStatus(response.SC_ACCEPTED);
                     byte[] buffer = new byte[4096];
                     int bytesRead = -1;
-                    while ((bytesRead = fis.read(buffer)) != -1) {
+                    while ((bytesRead = newFileInputStream.read(buffer)) != -1) {
                         outputStream.write(buffer, 0, bytesRead);
                     }
-                    fis.close();
+                    newFileInputStream.close();
                     outputStream.close();
                 } else {
                     response.setStatus(response.SC_BAD_REQUEST);

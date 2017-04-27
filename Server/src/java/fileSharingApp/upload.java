@@ -6,6 +6,8 @@
 package fileSharingApp;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -47,40 +49,51 @@ public class upload extends HttpServlet {
                 String username = db.check_session(sessionid);
                 Part filePart = request.getPart("file");
                 String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
-                InputStream fileContent = filePart.getInputStream();
-                boolean checkEncrypt = ((String) request.getParameter("checkEncrypt")).trim().equals("true");
-                if (checkEncrypt) {
-                    fileName += ".aes";
-                }
-                String filepath = uploadloc + username + "\\\\" + fileName;
-                boolean exists = Files.exists(Paths.get(filepath));
-                File newfile = new File(filepath);
-                if (exists) {
-                    response.setStatus(response.SC_CONFLICT);
-                    return;
-                }
-                if (checkEncrypt) {
-                    String encryptPass = (String) request.getParameter("pass");
-                    File tempfile = new File(temploc + fileName);
-                    Files.copy(fileContent, tempfile.toPath());
-                    try {
-                        aes.encrypt(encryptPass, tempfile, newfile);
-                    } catch (CryptoException ex) {
-                        response.setStatus(response.SC_NO_CONTENT);
-                        ex.printStackTrace();
+                try (InputStream fileContent = filePart.getInputStream()) {
+                    boolean checkEncrypt = ((String) request.getParameter("checkEncrypt")).trim().equals("true");
+                    if (checkEncrypt) {
+                        fileName += ".aes";
+                    }
+                    String filepath = uploadloc + username + "\\\\" + fileName;
+                    boolean exists = Files.exists(Paths.get(filepath));
+                    File newfile = new File(filepath);
+                    if (exists) {
+                        response.setStatus(response.SC_CONFLICT);
                         return;
                     }
-                    tempfile.delete();
-                } else {
-                    Files.copy(fileContent, newfile.toPath());
+                    if (checkEncrypt) {
+                        String encryptPass = (String) request.getParameter("pass");
+                        File tempfile = new File(temploc + fileName);
+                        Files.copy(fileContent, tempfile.toPath());
+                        FileInputStream tempFileInputStream = new FileInputStream(tempfile);
+                        FileOutputStream fileOutputStream = new FileOutputStream(newfile);
+                        try {
+                            AES_1.encrypt(128, encryptPass.toCharArray(), tempFileInputStream, fileOutputStream);
+                        } catch (AES_1.InvalidKeyLengthException ex) {
+                            response.setStatus(response.SC_PARTIAL_CONTENT);
+                            fileOutputStream.close();
+                            newfile.delete();
+                            return;
+                        } catch (AES_1.StrongEncryptionNotAvailableException ex) {
+                            response.setStatus(response.SC_EXPECTATION_FAILED);
+                            fileOutputStream.close();
+                            newfile.delete();
+                            return;
+                        }finally{
+                            tempFileInputStream.close();
+                            fileOutputStream.close();
+                            tempfile.delete();
+                        }
+                    } else {
+                        Files.copy(fileContent, newfile.toPath());
+                    }
+                    if (db.uploadfileentry(newfile.getName(), sessionid, newfile.length() + "", filepath)) {
+                        response.setStatus(response.SC_ACCEPTED);
+                    } else {
+                        newfile.delete();
+                        response.setStatus(response.SC_NO_CONTENT);
+                    }
                 }
-                if (db.uploadfileentry(newfile.getName(), sessionid, newfile.length() + "", filepath)) {
-                    response.setStatus(response.SC_ACCEPTED);
-                } else {
-                    newfile.delete();
-                    response.setStatus(response.SC_NO_CONTENT);
-                }
-
             } else {
                 response.setStatus(response.SC_UNAUTHORIZED);
             }

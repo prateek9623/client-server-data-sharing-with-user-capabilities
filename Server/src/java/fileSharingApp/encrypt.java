@@ -6,9 +6,14 @@
 package fileSharingApp;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.nio.file.Files;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -48,20 +53,27 @@ public class encrypt extends HttpServlet {
                     if (!newfle.exists()) {
                         String filename = db.check_password(sessionid, userpass);
                         File tempfile = new File(temploc + filename);
-                        try {
-                            aes.encrypt(encryptpass, file, tempfile);
+                        FileInputStream fileInputStream = new FileInputStream(file);
+                        FileOutputStream tempfileOutputStream = new FileOutputStream(tempfile);
+                            try {
+                            AES_1.encrypt(128,encryptpass.toCharArray(), fileInputStream, tempfileOutputStream);
                             Files.copy(tempfile.toPath(), newfle.toPath());
                             db.updateFileDetails(sessionid, newfle.getPath().replace("\\", "\\\\"), newfle.getName(), fileid, newfle.length() + "");
                             response.setStatus(response.SC_ACCEPTED);
-                        } catch (CryptoException ex) {
-                            tempfile.delete();
+                        } catch (AES_1.InvalidKeyLengthException ex) {
+                            response.setStatus(response.SC_PARTIAL_CONTENT);
                             newfle.delete();
-                            response.setStatus(response.SC_NO_CONTENT);
-                            ex.printStackTrace();
                             return;
+                        } catch (AES_1.StrongEncryptionNotAvailableException ex) {
+                            response.setStatus(response.SC_EXPECTATION_FAILED);
+                            newfle.delete();
+                            return;
+                        }finally{
+                            fileInputStream.close();
+                            tempfileOutputStream.close();
+                            tempfile.delete();
                         }
                         file.delete();
-                        tempfile.delete();
                     } else {
                         response.setStatus(response.SC_CONFLICT);
                     }

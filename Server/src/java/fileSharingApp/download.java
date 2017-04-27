@@ -2,6 +2,7 @@ package fileSharingApp;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,28 +40,39 @@ public class download extends HttpServlet {
                     File file = new File(filepath);
                     ServletOutputStream outputStream = response.getOutputStream();
                     ServletContext context = getServletConfig().getServletContext();
-                    FileInputStream fis;
+                    FileInputStream fis = new FileInputStream(file);
                     File tempfile;
                     if (!file.getName().endsWith(".aes")) {
-                        fis = new FileInputStream(file);
                         String mimetype = context.getMimeType(file.getPath());
                         response.setContentType((mimetype != null) ? mimetype : "application/octet-stream");
                         response.setContentLength((int) file.length());
                         response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
                     } else {
                         tempfile = new File(temploc + file.getName().replace(".aes", ""));
+                        FileOutputStream tempFileOutputStream = new FileOutputStream(tempfile);
                         String pass = request.getParameter("pass");
                         try {
-                            aes.decrypt(pass, file, tempfile);
+                            AES_1.decrypt(pass.toCharArray(), fis, tempFileOutputStream);
                             fis = new FileInputStream(tempfile);
                             String mimetype = context.getMimeType(tempfile.getPath());
                             response.setContentType((mimetype != null) ? mimetype : "application/octet-stream");
                             response.setContentLength((int) tempfile.length());
                             response.setHeader("Content-Disposition", "attachment; filename=\"" + tempfile.getName() + "\"");
-                        } catch (CryptoException ex) {
-                            Logger.getLogger(download.class.getName()).log(Level.SEVERE, null, ex);
-                            response.setStatus(response.SC_CONFLICT);
+                        } catch (AES_1.InvalidPasswordException ex) {
+                            response.setStatus(response.SC_UNAUTHORIZED);
+                            outputStream.close();
                             return;
+                        } catch (AES_1.InvalidAESStreamException ex) {
+                            response.setStatus(HttpServletResponse.SC_CONFLICT);
+                            outputStream.close();
+                            return;
+                        } catch (AES_1.StrongEncryptionNotAvailableException ex) {
+                            response.setStatus(HttpServletResponse.SC_CONFLICT);
+                            outputStream.close();
+                            return;
+                        } finally{
+                            tempFileOutputStream.close();
+                            fis.close();
                         }
                     }
                     response.setStatus(response.SC_ACCEPTED);
@@ -71,7 +83,6 @@ public class download extends HttpServlet {
                     }
                     fis.close();
                     outputStream.close();
-
                 } else {
                     response.setStatus(response.SC_BAD_REQUEST);
                 }

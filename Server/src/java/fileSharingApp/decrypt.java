@@ -6,9 +6,13 @@
 package fileSharingApp;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -48,20 +52,31 @@ public class decrypt extends HttpServlet {
                     if (!newfle.exists()) {
                         String filename = db.check_password(sessionid, userpass);
                         File tempfile = new File(temploc + filename);
+                        FileInputStream fileInputStream = new FileInputStream(file);
+                        FileOutputStream tempOutputStream = new FileOutputStream(tempfile);
                         try {
-                            aes.decrypt(encryptpass, file, tempfile);
+                            AES_1.decrypt(encryptpass.toCharArray(),fileInputStream, tempOutputStream);
                             Files.copy(tempfile.toPath(), newfle.toPath());
                             db.updateFileDetails(sessionid, newfle.getPath().replace("\\", "\\\\"), newfle.getName(), fileid, newfle.length() + "");
                             response.setStatus(response.SC_ACCEPTED);
-                        } catch (CryptoException ex) {
-                            tempfile.delete();
+                        } catch (AES_1.InvalidPasswordException ex) {
+                            response.setStatus(response.SC_UNAUTHORIZED);
                             newfle.delete();
-                            response.setStatus(response.SC_NO_CONTENT);
-                            ex.printStackTrace();
                             return;
+                        } catch (AES_1.InvalidAESStreamException ex) {
+                            response.setStatus(response.SC_BAD_REQUEST);
+                            newfle.delete();
+                            return;
+                        } catch (AES_1.StrongEncryptionNotAvailableException ex) {
+                            response.setStatus(response.SC_UNSUPPORTED_MEDIA_TYPE);
+                            newfle.delete();
+                            return;
+                        } finally {
+                            fileInputStream.close();
+                            tempOutputStream.close();
+                            tempfile.delete();
                         }
                         file.delete();
-                        tempfile.delete();
                     } else {
                         response.setStatus(response.SC_CONFLICT);
                     }

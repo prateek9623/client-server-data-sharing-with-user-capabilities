@@ -36,7 +36,6 @@ import org.apache.http.protocol.HttpContext;
 public class Connect {
 
     private static final Connect conn = new Connect();
-    private final CloseableHttpClient client = HttpClients.createDefault();
     private final HttpClient httpclient = HttpClients.createDefault();
     private final CookieStore cookieStore = new BasicCookieStore();
     private final HttpContext httpContext = new BasicHttpContext();

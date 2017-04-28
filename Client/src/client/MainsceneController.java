@@ -45,6 +45,7 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDecorator;
 import com.jfoenix.controls.JFXHamburger;
 import com.jfoenix.controls.JFXPopup;
+import impl.org.controlsfx.skin.PopOverSkin;
 import java.io.File;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -87,6 +88,7 @@ import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.controlsfx.control.Notifications;
+import org.controlsfx.control.PopOver;
 import org.controlsfx.control.TaskProgressView;
 
 public class MainsceneController implements Initializable {
@@ -116,7 +118,8 @@ public class MainsceneController implements Initializable {
     private JFXButton sharedWithMe;
     @FXML
     private JFXButton uploadButton;
-    private Stage uploadStage = new Stage();
+    private PopOver uploadPopOver;
+    private PopOver downloadPopOver;
     private Stage downloadStage = new Stage();
     private TaskProgressView<Task<Void>> uploadtask = new TaskProgressView<>();
     private TaskProgressView<Task<Void>> downloadtask = new TaskProgressView<>();
@@ -406,34 +409,46 @@ public class MainsceneController implements Initializable {
         popuplist.setMinSize(170, 100);
         JFXPopup popup = new JFXPopup(popuplist);
         avatar.setOnAction(e -> popup.show(avatar, JFXPopup.PopupVPosition.TOP, JFXPopup.PopupHPosition.RIGHT, -50, 100));
-        uploadStage.setTitle("Uploading");
-        uploadStage.setScene(new Scene(uploadtask));
+        uploadPopOver = new PopOver(uploadtask);
+        uploadPopOver.setDetachable(true);
+        uploadPopOver.setDetached(false);
+        uploadPopOver.setArrowSize(20);
+        uploadPopOver.setArrowLocation(PopOver.ArrowLocation.TOP_RIGHT);
+        uploadPopOver.setCornerRadius(10);
+        uploadPopOver.setHeaderAlwaysVisible(true);
+        uploadPopOver.setTitle("Uploads");
+        uploadPopOver.setAnimated(true);
         JFXToggleNode uploadbutton = new JFXToggleNode();
         uploadbutton.setGraphic(new BorderPane(new ImageView("resources/Upload_32.png")));
         uploadbutton.setOnAction(e -> {
             if (uploadbutton.isSelected()) {
-                uploadStage.show();
+                uploadPopOver.show(uploadbutton);
             } else {
-                uploadStage.hide();
+                uploadPopOver.hide();
             }
         });
-        uploadStage.setOnCloseRequest(event -> {
-            uploadStage.hide();
+        uploadPopOver.setOnHiding(event -> {
             uploadbutton.setSelected(false);
         });
-        downloadStage.setTitle("Downloading");
-        downloadStage.setScene(new Scene(downloadtask));
+        downloadPopOver = new PopOver(downloadtask);
+        downloadPopOver.setDetachable(true);
+        downloadPopOver.setDetached(false);
+        downloadPopOver.setArrowSize(20);
+        downloadPopOver.setArrowLocation(PopOver.ArrowLocation.TOP_LEFT);
+        downloadPopOver.setCornerRadius(10);
+        downloadPopOver.setHeaderAlwaysVisible(true);
+        downloadPopOver.setTitle("Downloads");
+        downloadPopOver.setAnimated(true);
         JFXToggleNode downloadbutton = new JFXToggleNode();
         downloadbutton.setGraphic(new BorderPane(new ImageView("resources/Download_32.png")));
         downloadbutton.setOnAction(e -> {
             if (downloadbutton.isSelected()) {
-                downloadStage.show();
+                downloadPopOver.show(downloadbutton);
             } else {
-                downloadStage.hide();
+                downloadPopOver.hide();
             }
         });
-        downloadStage.setOnCloseRequest(event -> {
-            downloadStage.hide();
+        downloadPopOver.setOnHiding(event -> {
             downloadbutton.setSelected(false);
         });
         uploaddownload.getChildren().addAll(uploadbutton, downloadbutton);

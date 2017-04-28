@@ -61,9 +61,11 @@ public class upload extends HttpServlet {
                         response.setStatus(response.SC_CONFLICT);
                         return;
                     }
+                    newfile.getParentFile().mkdirs();
                     if (checkEncrypt) {
                         String encryptPass = (String) request.getParameter("pass");
                         File tempfile = new File(temploc + fileName);
+                        tempfile.createNewFile();
                         Files.copy(fileContent, tempfile.toPath());
                         FileInputStream tempFileInputStream = new FileInputStream(tempfile);
                         FileOutputStream fileOutputStream = new FileOutputStream(newfile);

@@ -33,6 +33,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.apache.http.HttpStatus;
+import org.controlsfx.control.MaskerPane;
 import org.controlsfx.control.Notifications;
 
 public class LoginsceneController implements Initializable {
@@ -84,6 +85,8 @@ public class LoginsceneController implements Initializable {
     private ToggleGroup gender;
     @FXML
     private JFXRadioButton female;
+    @FXML
+    private MaskerPane masker;
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         usernameVali = new RequiredFieldValidator();

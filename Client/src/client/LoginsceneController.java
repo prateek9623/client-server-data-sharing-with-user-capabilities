@@ -408,7 +408,6 @@ public class LoginsceneController implements Initializable {
                         sidePaneNotification("Login successfull.");
                         Parent main = loader.load();
                         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                        stage.close();
                         Stage newStage = new Stage();
                         JFXDecorator decorator = new JFXDecorator(newStage, main);
                         decorator.customMaximizeProperty().setValue(false);
@@ -420,6 +419,7 @@ public class LoginsceneController implements Initializable {
                         scene.getStylesheets().add(Client.class.getResource("/resources/css/treetableview.css").toExternalForm());
                         newStage.setScene(scene);
                         newStage.show();
+                        stage.close();
                         message.setVisible(false);
                         break;
                     case HttpStatus.SC_NON_AUTHORITATIVE_INFORMATION:

@@ -125,7 +125,6 @@ public class MainsceneController implements Initializable {
     private ObjectMapper mapper = new ObjectMapper();
     @FXML
     private HBox uploaddownload;
-    private String sessionid;
     @FXML
     private SplitPane mfpane;
     private ToggleGroup mfbuttonGroup = new ToggleGroup();
@@ -313,7 +312,6 @@ public class MainsceneController implements Initializable {
             }
             haltexecution();
         }
-        sessionid = connect.getSessionid();
         avatar.setText(connect.getusername());
         toppane = mfpane;
         rightclickpopup();
@@ -1453,11 +1451,6 @@ public class MainsceneController implements Initializable {
         sharedToFileList file = sharehistoryTreeTable.getSelectionModel().getSelectedItem().getValue();
         unshare(file.getFile_id(), file.getFile_name().get());
     }
-
-    void passSessionId(String sessionID) {
-        sessionid = sessionID;
-    }
-
     public void haltexecution() {
         connect.logout();
         Platform.exit();

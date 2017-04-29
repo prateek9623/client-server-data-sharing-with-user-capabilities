@@ -69,6 +69,7 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import javafx.scene.control.Button;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -413,7 +414,6 @@ public class MainsceneController implements Initializable {
         uploadPopOver = new PopOver(uploadtask);
         uploadPopOver.setDetachable(true);
         uploadPopOver.setDetached(false);
-        uploadPopOver.setArrowSize(20);
         uploadPopOver.setArrowLocation(PopOver.ArrowLocation.TOP_RIGHT);
         uploadPopOver.setCornerRadius(10);
         uploadPopOver.setHeaderAlwaysVisible(true);
@@ -422,24 +422,17 @@ public class MainsceneController implements Initializable {
         uploadPopOver.setOnHiding(event -> {
             uploadbutton.setSelected(false);
         });
-//        JFXPopup uploadPopup = new JFXPopup(uploadtask);
-//        uploadtask.setMaxSize(400, 300);
-//        uploadPopup.setOnHiding(event -> {
-//            uploadbutton.setSelected(false);
-//        });
         uploadbutton.setOnAction(e -> {
             if (uploadbutton.isSelected()) {
-//                uploadPopup.show(uploadbutton,JFXPopup.PopupVPosition.TOP, JFXPopup.PopupHPosition.RIGHT,-20,uploadbutton.getHeight());
                 uploadPopOver.show(uploadbutton);
+                ((Parent)uploadPopOver.getSkin().getNode()).getStylesheets().add(getClass().getResource("/resources/css/popover.css").toExternalForm());
             } else {
-//                uploadPopup.hide();
                 uploadPopOver.hide();
             }
         });
         downloadPopOver = new PopOver(downloadtask);
         downloadPopOver.setDetachable(true);
         downloadPopOver.setDetached(false);
-        downloadPopOver.setArrowSize(20);
         downloadPopOver.setArrowLocation(PopOver.ArrowLocation.TOP_LEFT);
         downloadPopOver.setCornerRadius(10);
         downloadPopOver.setHeaderAlwaysVisible(true);
@@ -450,6 +443,7 @@ public class MainsceneController implements Initializable {
         downloadbutton.setOnAction(e -> {
             if (downloadbutton.isSelected()) {
                 downloadPopOver.show(downloadbutton);
+                ((Parent)uploadPopOver.getSkin().getNode()).getStylesheets().add(getClass().getResource("/resources/css/popover.css").toExternalForm());
             } else {
                 downloadPopOver.hide();
             }

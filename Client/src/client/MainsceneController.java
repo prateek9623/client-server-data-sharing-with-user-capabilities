@@ -408,6 +408,8 @@ public class MainsceneController implements Initializable {
         popuplist.setMinSize(170, 100);
         JFXPopup popup = new JFXPopup(popuplist);
         avatar.setOnAction(e -> popup.show(avatar, JFXPopup.PopupVPosition.TOP, JFXPopup.PopupHPosition.RIGHT, -50, 100));
+        JFXToggleNode uploadbutton = new JFXToggleNode();
+        uploadbutton.setGraphic(new BorderPane(new ImageView("resources/Upload_32.png")));
         uploadPopOver = new PopOver(uploadtask);
         uploadPopOver.setDetachable(true);
         uploadPopOver.setDetached(false);
@@ -417,17 +419,22 @@ public class MainsceneController implements Initializable {
         uploadPopOver.setHeaderAlwaysVisible(true);
         uploadPopOver.setTitle("Uploads");
         uploadPopOver.setAnimated(true);
-        JFXToggleNode uploadbutton = new JFXToggleNode();
-        uploadbutton.setGraphic(new BorderPane(new ImageView("resources/Upload_32.png")));
-        uploadbutton.setOnAction(e -> {
-            if (uploadbutton.isSelected()) {
-                uploadPopOver.show(uploadbutton);
-            } else {
-                uploadPopOver.hide();
-            }
-        });
         uploadPopOver.setOnHiding(event -> {
             uploadbutton.setSelected(false);
+        });
+//        JFXPopup uploadPopup = new JFXPopup(uploadtask);
+//        uploadtask.setMaxSize(400, 300);
+//        uploadPopup.setOnHiding(event -> {
+//            uploadbutton.setSelected(false);
+//        });
+        uploadbutton.setOnAction(e -> {
+            if (uploadbutton.isSelected()) {
+//                uploadPopup.show(uploadbutton,JFXPopup.PopupVPosition.TOP, JFXPopup.PopupHPosition.RIGHT,-20,uploadbutton.getHeight());
+                uploadPopOver.show(uploadbutton);
+            } else {
+//                uploadPopup.hide();
+                uploadPopOver.hide();
+            }
         });
         downloadPopOver = new PopOver(downloadtask);
         downloadPopOver.setDetachable(true);
@@ -737,6 +744,11 @@ public class MainsceneController implements Initializable {
                     System.out.println(ex);
                 }
                 return null;
+            }
+            @Override
+            protected void cancelled(){
+                fileupload.abort();
+                sidePaneNotification("Upload Cancelled");
             }
         };
     }

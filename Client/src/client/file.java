@@ -5,10 +5,6 @@
  */
 package client;
 
-/**
- *
- * @author Prateek
- */
 public class file {
 
     private String file_id;

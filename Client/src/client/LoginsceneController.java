@@ -109,7 +109,6 @@ public class LoginsceneController implements Initializable {
                 }
             }
         });
-        
         male.setUserData("Male");
         female.setUserData("Female");
         RequiredFieldValidator phonevalid = new RequiredFieldValidator(){

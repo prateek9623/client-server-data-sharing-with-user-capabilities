@@ -92,7 +92,6 @@ import org.controlsfx.control.PopOver;
 import org.controlsfx.control.TaskProgressView;
 
 public class MainsceneController implements Initializable {
-
     Connect connect = Connect.getInstance();
     private final CloseableHttpClient client = HttpClients.createDefault();
     private final HttpPost filedownload = new HttpPost("http://localhost:8080/Server/download");

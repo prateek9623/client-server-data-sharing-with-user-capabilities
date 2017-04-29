@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package client;
 
 import java.io.BufferedReader;
@@ -28,10 +23,6 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 
-/**
- *
- * @author Prateek
- */
 public class Connect {
 
     private static final Connect conn = new Connect();

@@ -463,7 +463,7 @@ public class MainsceneController implements Initializable {
                         paintcontains();
                     });
                     try {
-                        Thread.sleep(100000);
+                        Thread.sleep(600000);
                     } catch (InterruptedException ex) {
                     }
                 }

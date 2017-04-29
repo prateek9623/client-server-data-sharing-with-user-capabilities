@@ -8,3 +8,6 @@
         -fx-padding: 10;
         -fx-text-fill: grey;
 }
+.popover>.content>label{
+    -fx-text-fill: black;
+}
